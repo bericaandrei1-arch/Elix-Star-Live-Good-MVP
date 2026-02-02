@@ -215,18 +215,13 @@ export default function LiveStream() {
   const battleTapScoreRemainingRef = useRef<number>(5);
   const [battleTapScoreRemaining, setBattleTapScoreRemaining] = useState(5);
   const battleScoreTapWindowRef = useRef<{ windowStart: number; count: number }>({ windowStart: 0, count: 0 });
+  const battleTripleTapRef = useRef<{ target: 'me' | 'opponent' | null; lastTapAt: number; count: number }>({
+    target: null,
+    lastTapAt: 0,
+    count: 0,
+  });
   const [battleCountdown, setBattleCountdown] = useState<number | null>(null);
-  const [battleMultiplier, setBattleMultiplier] = useState(1);
-  const battleMultiplierRef = useRef(1);
-  const battleMultiplierTimeoutRef = useRef<number | null>(null);
-  const battleBoosterCooldownUntilRef = useRef(0);
-  const battleBoosterCatchCountRef = useRef(0);
-  const battleBoosterHideTimeoutRef = useRef<number | null>(null);
-  const battleBoosterSpawnTimeoutRef = useRef<number | null>(null);
-  const [activeBooster, setActiveBooster] = useState<
-    | null
-    | { id: string; multiplier: number; spawnedAt: number; ttlMs: number; x: number; y: number; dx1: number; dx2: number; dy1: number; dy2: number }
-  >(null);
+  const battleKeyboardLikeArmedRef = useRef(true);
   const [liveLikes, setLiveLikes] = useState(0);
   const [battleLikes, setBattleLikes] = useState(0);
   const [battleGifterCoins, setBattleGifterCoins] = useState<Record<string, number>>({});
@@ -264,10 +259,8 @@ export default function LiveStream() {
       setBattleTime(300);
       setBattleWinner(null);
       setBattleCountdown(null);
-      setBattleMultiplier(1);
-      battleMultiplierRef.current = 1;
       battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
-      setActiveBooster(null);
+      battleTripleTapRef.current = { target: null, lastTapAt: 0, count: 0 };
       setMiniProfile(null);
       return;
     }
@@ -281,11 +274,8 @@ export default function LiveStream() {
     setBattleTapScoreRemaining(5);
     setBattleGifterCoins({});
     setBattleCountdown(3);
-    setBattleMultiplier(1);
-    battleMultiplierRef.current = 1;
     battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
-    battleBoosterCooldownUntilRef.current = 0;
-    battleBoosterCatchCountRef.current = 0;
+    battleTripleTapRef.current = { target: null, lastTapAt: 0, count: 0 };
   };
 
   useEffect(() => {
@@ -446,6 +436,15 @@ export default function LiveStream() {
     if (!isBattleMode || battleTime <= 0 || battleWinner || battleCountdown != null) return;
 
     const now = Date.now();
+    const triple = battleTripleTapRef.current;
+    if (triple.target !== target || now - triple.lastTapAt > 700) {
+      battleTripleTapRef.current = { target, lastTapAt: now, count: 1 };
+      return;
+    }
+    battleTripleTapRef.current = { target, lastTapAt: now, count: triple.count + 1 };
+    if (battleTripleTapRef.current.count < 3) return;
+    battleTripleTapRef.current = { target, lastTapAt: 0, count: 0 };
+
     const windowStart = battleScoreTapWindowRef.current.windowStart;
     if (windowStart === 0 || now - windowStart >= 1000) {
       battleScoreTapWindowRef.current = { windowStart: now, count: 0 };
@@ -453,81 +452,8 @@ export default function LiveStream() {
     if (battleScoreTapWindowRef.current.count >= 5) return;
     battleScoreTapWindowRef.current.count += 1;
 
-    const basePoints = 5;
-    const points = basePoints * battleMultiplierRef.current;
-    awardBattlePoints(target, points);
+    awardBattlePoints(target, 5);
   };
-
-  const pickBoosterMultiplier = () => {
-    const r = Math.random();
-    if (r < 0.6) return 2;
-    if (r < 0.85) return 3;
-    if (r < 0.97) return 5;
-    return 10;
-  };
-
-  const spawnBooster = () => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const rect = stage.getBoundingClientRect();
-    const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    const multiplier = pickBoosterMultiplier();
-    const ttlMs = 1800;
-    const x = Math.round(rect.width * (0.2 + Math.random() * 0.6));
-    const y = Math.round(rect.height * (0.18 + Math.random() * 0.26));
-    const dx1 = Math.round((Math.random() * 2 - 1) * rect.width * 0.22);
-    const dx2 = Math.round((Math.random() * 2 - 1) * rect.width * 0.22);
-    const dy1 = Math.round((Math.random() * 2 - 1) * rect.height * 0.08);
-    const dy2 = Math.round((Math.random() * 2 - 1) * rect.height * 0.08);
-
-    setActiveBooster({ id, multiplier, spawnedAt: Date.now(), ttlMs, x, y, dx1, dx2, dy1, dy2 });
-
-    if (battleBoosterHideTimeoutRef.current) window.clearTimeout(battleBoosterHideTimeoutRef.current);
-    battleBoosterHideTimeoutRef.current = window.setTimeout(() => {
-      setActiveBooster(null);
-    }, ttlMs);
-  };
-
-  const activateBooster = (multiplier: number) => {
-    setBattleMultiplier(multiplier);
-    battleMultiplierRef.current = multiplier;
-    if (battleMultiplierTimeoutRef.current) window.clearTimeout(battleMultiplierTimeoutRef.current);
-    battleMultiplierTimeoutRef.current = window.setTimeout(() => {
-      setBattleMultiplier(1);
-      battleMultiplierRef.current = 1;
-    }, 8000);
-  };
-
-  const handleCatchBooster = () => {
-    if (!activeBooster) return;
-    if (!isBattleMode || battleTime <= 0 || battleWinner || battleCountdown != null) return;
-    const now = Date.now();
-    if (now < battleBoosterCooldownUntilRef.current) return;
-    if (battleBoosterCatchCountRef.current >= 6) return;
-    if (now - activeBooster.spawnedAt > activeBooster.ttlMs) return;
-
-    battleBoosterCooldownUntilRef.current = now + 10_000;
-    battleBoosterCatchCountRef.current += 1;
-    activateBooster(activeBooster.multiplier);
-    setActiveBooster(null);
-  };
-
-  useEffect(() => {
-    if (!isBattleMode) return;
-    if (battleTime <= 0) return;
-    if (battleWinner) return;
-    if (battleCountdown != null) return;
-
-    if (battleBoosterSpawnTimeoutRef.current) window.clearTimeout(battleBoosterSpawnTimeoutRef.current);
-    const delay = 4200 + Math.round(Math.random() * 5200);
-    battleBoosterSpawnTimeoutRef.current = window.setTimeout(() => {
-      if (!activeBooster) spawnBooster();
-    }, delay);
-
-    return () => {
-      if (battleBoosterSpawnTimeoutRef.current) window.clearTimeout(battleBoosterSpawnTimeoutRef.current);
-    };
-  }, [isBattleMode, battleTime, battleWinner, battleCountdown, activeBooster]);
 
   useEffect(() => {
     if (!isBattleMode) return;
@@ -1077,9 +1003,6 @@ export default function LiveStream() {
       };
       setMessages(prev => [...prev, newMsg]);
       setInputValue('');
-      if (isBattleMode) {
-        addLiveLikes(1);
-      }
   };
 
   const formatTime = (seconds: number) => {
@@ -1114,19 +1037,13 @@ export default function LiveStream() {
     setOpponentScore(0);
     setBattleWinner(null);
     setBattleGifterCoins({});
-    setBattleMultiplier(1);
-    battleMultiplierRef.current = 1;
     battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
-    battleBoosterCooldownUntilRef.current = 0;
-    battleBoosterCatchCountRef.current = 0;
-    setActiveBooster(null);
     setBattleTime(0);
     setBattleCountdown(3);
   };
 
   const closeBattleMatch = () => {
     if (!isBattleMode) return;
-    setActiveBooster(null);
     setBattleCountdown(null);
     setBattleTime(0);
     const winner = myScore === opponentScore ? 'draw' : myScore > opponentScore ? 'me' : 'opponent';
@@ -1188,39 +1105,6 @@ export default function LiveStream() {
                   <div className="text-white text-5xl font-black tabular-nums">{battleCountdown}</div>
                 </div>
               </div>
-            )}
-
-            {battleMultiplier > 1 && battleTime > 0 && !battleWinner && (
-              <div className="absolute left-1/2 top-4 z-[260] -translate-x-1/2 pointer-events-none">
-                <div className="px-3 py-1.5 rounded-full bg-black/60 border border-[#E6B36A]/30 text-[#E6B36A] text-xs font-black tracking-widest">
-                  ⚡ SPEED UP x{battleMultiplier}
-                </div>
-              </div>
-            )}
-
-            {activeBooster && (
-              <motion.button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  handleCatchBooster();
-                }}
-                className="absolute z-[260] pointer-events-auto"
-                style={{ left: activeBooster.x, top: activeBooster.y, transform: 'translate(-50%, -50%)' }}
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{
-                  opacity: [0.2, 1, 0.9, 0.2],
-                  scale: [0.7, 1, 0.95, 0.85],
-                  x: [0, activeBooster.dx1, activeBooster.dx2, 0],
-                  y: [0, activeBooster.dy1, activeBooster.dy2, 0],
-                }}
-                transition={{ duration: activeBooster.ttlMs / 1000, ease: 'easeOut' }}
-              >
-                <div className="w-14 h-14 rounded-full bg-[#E6B36A] text-black shadow-[0_0_18px_rgba(230,179,106,0.35)] border border-white/30 flex flex-col items-center justify-center">
-                  <div className="text-[18px] font-black leading-none">⚡</div>
-                  <div className="text-[12px] font-black leading-none">x{activeBooster.multiplier}</div>
-                </div>
-              </motion.button>
             )}
 
             <div className="relative w-full h-[56%] flex">
@@ -1532,24 +1416,6 @@ export default function LiveStream() {
             </div>
           )}
 
-          {isBattleMode && isBroadcast && (
-            <div className="mt-2 flex items-center justify-center gap-2 pointer-events-auto">
-              <button
-                type="button"
-                onClick={startBattleMatch}
-                className="h-7 px-2.5 rounded-full bg-[#E6B36A] text-black text-[10px] font-black border border-white/10"
-              >
-                Start game
-              </button>
-              <button
-                type="button"
-                onClick={closeBattleMatch}
-                className="h-7 px-2.5 rounded-full bg-black/55 text-white text-[10px] font-black border border-white/10"
-              >
-                End game
-              </button>
-            </div>
-          )}
           </div>
         </div>
       )}
@@ -1566,7 +1432,15 @@ export default function LiveStream() {
               />
               <div className="min-w-0">
                 <p className="text-white font-extrabold text-[14px] truncate max-w-[160px]">{myCreatorName}</p>
-                <p className="text-[#E6B36A]/80 text-[10px] font-extrabold tracking-widest">LIVE</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Heart className="w-3.5 h-3.5 text-[#E6B36A]" strokeWidth={2.2} />
+                    <span className="text-white/90 text-[10px] font-extrabold tabular-nums">
+                      {activeLikes.toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-[#E6B36A]/80 text-[10px] font-extrabold tracking-widest">LIVE</p>
+                </div>
               </div>
             </button>
 
@@ -1574,10 +1448,6 @@ export default function LiveStream() {
               <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
                 <Flame className="w-4 h-4 text-[#E6B36A]" strokeWidth={2} />
                 <span className="text-white text-xs font-extrabold">Popular</span>
-              </div>
-              <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
-                <Heart className="w-4 h-4 text-[#E6B36A]" strokeWidth={2} />
-                <span className="text-white text-xs font-extrabold tabular-nums">{activeLikes.toLocaleString()}</span>
               </div>
               {!isBattleMode && isBroadcast && (
                 <button
@@ -1591,18 +1461,39 @@ export default function LiveStream() {
               )}
             </div>
 
-            <div className="pointer-events-auto flex items-center gap-2">
-              <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
-                <User className="w-4 h-4 text-white" strokeWidth={2} />
-                <span className="text-white font-extrabold text-xs">10.2k</span>
+            <div className="pointer-events-auto flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2">
+                <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                  <User className="w-4 h-4 text-white" strokeWidth={2} />
+                  <span className="text-white font-extrabold text-xs">10.2k</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={isBroadcast ? stopBroadcast : () => navigate('/')}
+                  className="w-9 h-9 rounded-full bg-black/70 border border-white/10 text-white flex items-center justify-center"
+                >
+                  <LogOut size={18} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={isBroadcast ? stopBroadcast : () => navigate('/')}
-                className="w-9 h-9 rounded-full bg-black/70 border border-white/10 text-white flex items-center justify-center"
-              >
-                <LogOut size={18} />
-              </button>
+
+              {isBattleMode && isBroadcast && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={startBattleMatch}
+                    className="h-7 px-2.5 rounded-full bg-[#E6B36A] text-black text-[10px] font-black border border-white/10"
+                  >
+                    Start
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeBattleMatch}
+                    className="h-7 px-2.5 rounded-full bg-black/55 text-white text-[10px] font-black border border-white/10"
+                  >
+                    End
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1810,6 +1701,15 @@ export default function LiveStream() {
                     className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-gray-400"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
+                    onFocus={() => {
+                      if (!isBattleMode) return;
+                      if (!battleKeyboardLikeArmedRef.current) return;
+                      battleKeyboardLikeArmedRef.current = false;
+                      addLiveLikes(1);
+                    }}
+                    onBlur={() => {
+                      battleKeyboardLikeArmedRef.current = true;
+                    }}
                 />
                 <button type="submit" className="text-white">
                     <Send size={18} />
