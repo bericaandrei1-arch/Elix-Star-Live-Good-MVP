@@ -223,7 +223,6 @@ export default function LiveStream() {
   const [battleCountdown, setBattleCountdown] = useState<number | null>(null);
   const battleKeyboardLikeArmedRef = useRef(true);
   const [liveLikes, setLiveLikes] = useState(0);
-  const [battleLikes, setBattleLikes] = useState(0);
   const [battleGifterCoins, setBattleGifterCoins] = useState<Record<string, number>>({});
   const [floatingHearts, setFloatingHearts] = useState<
     Array<{ id: string; x: number; y: number; dx: number; rot: number; size: number; color: string }>
@@ -347,27 +346,11 @@ export default function LiveStream() {
   const addLiveLikes = (delta: number) => {
     if (delta <= 0) return;
 
-    if (isBattleMode) {
-      setBattleLikes((prev) => {
-        const next = prev + delta;
-        if (prev < PROMOTE_LIKES_THRESHOLD_BATTLE && next >= PROMOTE_LIKES_THRESHOLD_BATTLE) {
-          setPromo({
-            type: 'battle',
-            streamId: effectiveStreamId,
-            likes: next,
-            createdAt: Date.now(),
-          });
-        }
-        return next;
-      });
-      return;
-    }
-
     setLiveLikes((prev) => {
       const next = prev + delta;
       if (prev < PROMOTE_LIKES_THRESHOLD_LIVE && next >= PROMOTE_LIKES_THRESHOLD_LIVE) {
         setPromo({
-          type: 'live',
+          type: isBattleMode ? 'battle' : 'live',
           streamId: effectiveStreamId,
           likes: next,
           createdAt: Date.now(),
@@ -1058,7 +1041,7 @@ export default function LiveStream() {
     : '';
   const universeDurationSeconds = Math.max(6, Math.min(16, universeText.length * 0.12));
   const isLiveNormal = isBroadcast && !isBattleMode;
-  const activeLikes = isBattleMode ? battleLikes : liveLikes;
+  const activeLikes = liveLikes;
   const battleTop3 = Object.entries(battleGifterCoins)
     .map(([username, coins]) => ({ username, coins }))
     .sort((a, b) => b.coins - a.coins)
@@ -1701,14 +1684,8 @@ export default function LiveStream() {
                     className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-gray-400"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onFocus={() => {
-                      if (!isBattleMode) return;
-                      if (!battleKeyboardLikeArmedRef.current) return;
-                      battleKeyboardLikeArmedRef.current = false;
+                    onPointerDown={() => {
                       addLiveLikes(1);
-                    }}
-                    onBlur={() => {
-                      battleKeyboardLikeArmedRef.current = true;
                     }}
                 />
                 <button type="submit" className="text-white">
