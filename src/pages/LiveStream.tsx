@@ -66,7 +66,8 @@ export default function LiveStream() {
   const setPromo = useLivePromoStore((s) => s.setPromo);
   const updateUser = useAuthStore((s) => s.updateUser);
   const effectiveStreamId = streamId || 'broadcast';
-  const PROMOTE_LIKES_THRESHOLD = 5000;
+  const PROMOTE_LIKES_THRESHOLD_LIVE = 10_000;
+  const PROMOTE_LIKES_THRESHOLD_BATTLE = 5_000;
   
   const [showGiftPanel, setShowGiftPanel] = useState(false);
   const [currentGift, setCurrentGift] = useState<string | null>(null);
@@ -210,8 +211,8 @@ export default function LiveStream() {
   const [battleWinner, setBattleWinner] = useState<'me' | 'opponent' | 'draw' | null>(null);
   const [giftTarget, setGiftTarget] = useState<'me' | 'opponent'>('me');
   const lastScreenTapRef = useRef<number>(0);
-  const [, setLiveLikes] = useState(0);
-  const [, setBattleLikes] = useState(0);
+  const [liveLikes, setLiveLikes] = useState(0);
+  const [battleLikes, setBattleLikes] = useState(0);
   const [universeQueue, setUniverseQueue] = useState<UniverseTickerMessage[]>([]);
   const [currentUniverse, setCurrentUniverse] = useState<UniverseTickerMessage | null>(null);
 
@@ -304,7 +305,7 @@ export default function LiveStream() {
     if (isBattleMode) {
       setBattleLikes((prev) => {
         const next = prev + delta;
-        if (prev < PROMOTE_LIKES_THRESHOLD && next >= PROMOTE_LIKES_THRESHOLD) {
+        if (prev < PROMOTE_LIKES_THRESHOLD_BATTLE && next >= PROMOTE_LIKES_THRESHOLD_BATTLE) {
           setPromo({
             type: 'battle',
             streamId: effectiveStreamId,
@@ -319,7 +320,7 @@ export default function LiveStream() {
 
     setLiveLikes((prev) => {
       const next = prev + delta;
-      if (prev < PROMOTE_LIKES_THRESHOLD && next >= PROMOTE_LIKES_THRESHOLD) {
+      if (prev < PROMOTE_LIKES_THRESHOLD_LIVE && next >= PROMOTE_LIKES_THRESHOLD_LIVE) {
         setPromo({
           type: 'live',
           streamId: effectiveStreamId,
@@ -872,6 +873,7 @@ export default function LiveStream() {
     : '';
   const universeDurationSeconds = Math.max(6, Math.min(16, universeText.length * 0.12));
   const isLiveNormal = isBroadcast && !isBattleMode;
+  const activeLikes = isBattleMode ? battleLikes : liveLikes;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -1098,7 +1100,7 @@ export default function LiveStream() {
                     </div>
                     <div className="flex items-center gap-2 text-[13px] font-semibold text-[#E6B36A]">
                       <Heart className="w-4 h-4" strokeWidth={2} />
-                      <span>0</span>
+                      <span>{liveLikes.toLocaleString()}</span>
                       <span className="text-[#E6B36A]/60">•</span>
                       <Flame className="w-4 h-4" strokeWidth={2} />
                       <span className="text-[12px] font-semibold whitespace-nowrap">Daily Ranking</span>
@@ -1169,6 +1171,10 @@ export default function LiveStream() {
               <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
                 <Flame className="w-4 h-4 text-[#E6B36A]" strokeWidth={2} />
                 <span className="text-white text-xs font-extrabold">Popular</span>
+              </div>
+              <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                <Heart className="w-4 h-4 text-[#E6B36A]" strokeWidth={2} />
+                <span className="text-white text-xs font-extrabold tabular-nums">{activeLikes.toLocaleString()}</span>
               </div>
               {!isBattleMode && isBroadcast && (
                 <button
