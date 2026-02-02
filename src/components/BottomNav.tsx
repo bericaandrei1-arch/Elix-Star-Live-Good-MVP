@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, UsersRound, Plus, MessageCircle, UserRound } from 'lucide-react';
+import { Home, Search, Plus, MessageCircle, UserRound } from 'lucide-react';
 
 export const BottomNav = () => {
   const navigate = useNavigate();
@@ -24,8 +24,8 @@ export const BottomNav = () => {
   };
 
   const navItems = [
-    { label: 'Home', path: '/', icon: Home },
-    { label: 'Friends', path: '/friends', icon: UsersRound },
+    { label: 'Home', path: '/feed', icon: Home },
+    { label: 'Discover', path: '/search', icon: Search },
     { label: 'Create', path: '/create', icon: Plus, isCenter: true },
     { label: 'Inbox', path: '/inbox', icon: MessageCircle },
     { label: 'Profile', path: '/profile', icon: UserRound },
