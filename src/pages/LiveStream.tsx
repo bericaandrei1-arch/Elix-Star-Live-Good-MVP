@@ -1179,6 +1179,7 @@ export default function LiveStream() {
                 messages={messages}
                 variant="panel"
                 className="static w-full h-full bg-black border-0 p-4"
+                onLike={() => addLiveLikes(1)}
               />
               <div className="absolute left-3 right-[132px] bottom-4 z-[70] pointer-events-auto">
                 <div className="h-8 px-3 rounded-full bg-black/55 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3 text-white text-[11px] font-extrabold tabular-nums">
@@ -1308,8 +1309,15 @@ export default function LiveStream() {
                   <div className="min-w-0">
                     <p className="font-extrabold text-[16px] truncate max-w-[170px]">{myCreatorName}</p>
                     <div className="flex items-center gap-2 text-[13px] font-semibold text-[#E6B36A]">
-                      <Heart className="w-4 h-4" strokeWidth={2} />
-                      <span>{liveLikes.toLocaleString()}</span>
+                      <motion.div
+                        key={activeLikes}
+                        initial={{ scale: 1 }}
+                        animate={{ scale: [1, 1.4, 1] }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Heart className="w-4 h-4 text-red-500 fill-red-500" strokeWidth={2} />
+                      </motion.div>
+                      <span>{activeLikes.toLocaleString()}</span>
                       <span className="text-[#E6B36A]/60">•</span>
                       <Flame className="w-4 h-4" strokeWidth={2} />
                       <span className="text-[12px] font-semibold whitespace-nowrap">Daily Ranking</span>
@@ -1626,6 +1634,7 @@ export default function LiveStream() {
           messages={messages}
           variant="overlay"
           className={isLiveNormal ? "pb-[calc(84px+env(safe-area-inset-bottom))]" : undefined}
+          onLike={() => addLiveLikes(1)}
         />
       )}
 
