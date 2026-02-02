@@ -62,6 +62,7 @@ export default function LiveStream() {
   const location = useLocation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const opponentVideoRef = useRef<HTMLVideoElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const setPromo = useLivePromoStore((s) => s.setPromo);
   const updateUser = useAuthStore((s) => s.updateUser);
@@ -215,6 +216,9 @@ export default function LiveStream() {
   const [battleTapScoreRemaining, setBattleTapScoreRemaining] = useState(5);
   const [liveLikes, setLiveLikes] = useState(0);
   const [battleLikes, setBattleLikes] = useState(0);
+  const [floatingHearts, setFloatingHearts] = useState<
+    Array<{ id: string; x: number; y: number; dx: number; rot: number; size: number; color: string }>
+  >([]);
   const [universeQueue, setUniverseQueue] = useState<UniverseTickerMessage[]>([]);
   const [currentUniverse, setCurrentUniverse] = useState<UniverseTickerMessage | null>(null);
 
@@ -345,6 +349,36 @@ export default function LiveStream() {
     }
   };
 
+  const spawnHeartAt = (x: number, y: number) => {
+    const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const dx = Math.round((Math.random() * 2 - 1) * 48);
+    const rot = Math.round((Math.random() * 2 - 1) * 18);
+    const size = Math.round(16 + Math.random() * 10);
+    const colors = ['#E6B36A', '#F4C2C2', '#FFFFFF'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    setFloatingHearts((prev) => [...prev.slice(-28), { id, x, y, dx, rot, size, color }]);
+    window.setTimeout(() => {
+      setFloatingHearts((prev) => prev.filter((h) => h.id !== id));
+    }, 950);
+  };
+
+  const spawnHeartFromClient = (clientX: number, clientY: number) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    spawnHeartAt(clientX - rect.left, clientY - rect.top);
+  };
+
+  const spawnHeartAtSide = (target: 'me' | 'opponent') => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const x = rect.width * (target === 'me' ? 0.25 : 0.75);
+    const y = rect.height * 0.62;
+    spawnHeartAt(x, y);
+  };
+
   const handleBattleTap = (target: 'me' | 'opponent') => {
     setGiftTarget(target);
     addLiveLikes(1);
@@ -376,12 +410,14 @@ export default function LiveStream() {
       if (key === 'ArrowLeft' || key === 'a' || key === 'A' || code === 'Numpad4') {
         e.preventDefault();
         handleBattleTap('me');
+        spawnHeartAtSide('me');
         return;
       }
 
       if (key === 'ArrowRight' || key === 'd' || key === 'D' || code === 'Numpad6') {
         e.preventDefault();
         handleBattleTap('opponent');
+        spawnHeartAtSide('opponent');
       }
     };
 
@@ -920,7 +956,26 @@ export default function LiveStream() {
       <div className="absolute inset-0 bg-black pointer-events-none z-0" />
 
       {/* Live Video Placeholder or Camera Feed */}
-      <div className="relative w-full h-full">
+      <div ref={stageRef} className="relative w-full h-full">
+        <div className="absolute inset-0 pointer-events-none z-[240]">
+          {floatingHearts.map((h) => (
+            <div
+              key={h.id}
+              className="absolute elix-heart-float"
+              style={
+                {
+                  left: `${h.x}px`,
+                  top: `${h.y}px`,
+                  transform: 'translate(-50%, -50%)',
+                  ['--elix-heart-dx' as any]: `${h.dx}px`,
+                  ['--elix-heart-rot' as any]: `${h.rot}deg`,
+                } as React.CSSProperties
+              }
+            >
+              <Heart className="drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]" style={{ width: h.size, height: h.size, color: h.color, fill: h.color }} />
+            </div>
+          ))}
+        </div>
         {isBattleMode ? (
           <div
             className="relative w-full h-full flex flex-col bg-black"
@@ -963,7 +1018,8 @@ export default function LiveStream() {
               <button
                 type="button"
                 onClick={() => setGiftTarget('me')}
-                onPointerDown={() => {
+                onPointerDown={(e) => {
+                  spawnHeartFromClient(e.clientX, e.clientY);
                   handleBattleTap('me');
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'outline outline-2 outline-secondary/70' : ''}`}
@@ -980,7 +1036,8 @@ export default function LiveStream() {
               <button
                 type="button"
                 onClick={() => setGiftTarget('opponent')}
-                onPointerDown={() => {
+                onPointerDown={(e) => {
+                  spawnHeartFromClient(e.clientX, e.clientY);
                   handleBattleTap('opponent');
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'outline outline-2 outline-secondary/70' : ''}`}
@@ -1063,6 +1120,7 @@ export default function LiveStream() {
                 const interactive = e.target.closest('button, a, input, textarea, select, [role="button"]');
                 if (interactive) return;
               }
+              spawnHeartFromClient(e.clientX, e.clientY);
               addLiveLikes(1);
               const now = Date.now();
               const last = lastScreenTapRef.current;

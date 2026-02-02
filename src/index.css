@@ -219,6 +219,25 @@
   will-change: transform, opacity;
 }
 
+@keyframes elix-heart-float {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.9) rotate(0deg);
+  }
+  10% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--elix-heart-dx, 0px), -160px, 0) scale(1.55) rotate(var(--elix-heart-rot, 0deg));
+  }
+}
+
+.elix-heart-float {
+  animation: elix-heart-float 900ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
