@@ -345,6 +345,50 @@ export default function LiveStream() {
     }
   };
 
+  const handleBattleTap = (target: 'me' | 'opponent') => {
+    setGiftTarget(target);
+    addLiveLikes(1);
+    if (battleTapScoreRemainingRef.current > 0) {
+      const points = battleTapScoreRemainingRef.current;
+      awardBattlePoints(target, points);
+      battleTapScoreRemainingRef.current = 0;
+      setBattleTapScoreRemaining(0);
+    }
+  };
+
+  useEffect(() => {
+    if (!isBattleMode) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (battleWinner) return;
+
+      const activeEl = document.activeElement;
+      if (activeEl instanceof HTMLElement) {
+        const tag = activeEl.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || activeEl.isContentEditable) return;
+      }
+
+      const key = e.key;
+      const code = e.code;
+
+      if (key === 'ArrowLeft' || key === 'a' || key === 'A' || code === 'Numpad4') {
+        e.preventDefault();
+        handleBattleTap('me');
+        return;
+      }
+
+      if (key === 'ArrowRight' || key === 'd' || key === 'D' || code === 'Numpad6') {
+        e.preventDefault();
+        handleBattleTap('opponent');
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, { passive: false });
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isBattleMode, battleWinner]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const shouldStartBattle = params.get('battle') === '1';
@@ -920,14 +964,7 @@ export default function LiveStream() {
                 type="button"
                 onClick={() => setGiftTarget('me')}
                 onPointerDown={() => {
-                  setGiftTarget('me');
-                  addLiveLikes(1);
-                  if (battleTapScoreRemainingRef.current > 0) {
-                    const points = battleTapScoreRemainingRef.current;
-                    awardBattlePoints('me', points);
-                    battleTapScoreRemainingRef.current = 0;
-                    setBattleTapScoreRemaining(0);
-                  }
+                  handleBattleTap('me');
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
@@ -944,14 +981,7 @@ export default function LiveStream() {
                 type="button"
                 onClick={() => setGiftTarget('opponent')}
                 onPointerDown={() => {
-                  setGiftTarget('opponent');
-                  addLiveLikes(1);
-                  if (battleTapScoreRemainingRef.current > 0) {
-                    const points = battleTapScoreRemainingRef.current;
-                    awardBattlePoints('opponent', points);
-                    battleTapScoreRemainingRef.current = 0;
-                    setBattleTapScoreRemaining(0);
-                  }
+                  handleBattleTap('opponent');
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
