@@ -211,6 +211,8 @@ export default function LiveStream() {
   const [battleWinner, setBattleWinner] = useState<'me' | 'opponent' | 'draw' | null>(null);
   const [giftTarget, setGiftTarget] = useState<'me' | 'opponent'>('me');
   const lastScreenTapRef = useRef<number>(0);
+  const battleTapScoreRemainingRef = useRef<number>(5);
+  const [battleTapScoreRemaining, setBattleTapScoreRemaining] = useState(5);
   const [liveLikes, setLiveLikes] = useState(0);
   const [battleLikes, setBattleLikes] = useState(0);
   const [universeQueue, setUniverseQueue] = useState<UniverseTickerMessage[]>([]);
@@ -250,6 +252,8 @@ export default function LiveStream() {
     setOpponentScore(0);
     setBattleWinner(null);
     setGiftTarget('me');
+    battleTapScoreRemainingRef.current = 5;
+    setBattleTapScoreRemaining(5);
   };
 
   const startBattleWithCreator = (creatorName: string) => {
@@ -917,8 +921,12 @@ export default function LiveStream() {
                 onClick={() => setGiftTarget('me')}
                 onPointerDown={() => {
                   setGiftTarget('me');
-                  awardBattlePoints('me', 3);
                   addLiveLikes(1);
+                  if (battleTapScoreRemainingRef.current > 0) {
+                    awardBattlePoints('me', 1);
+                    battleTapScoreRemainingRef.current -= 1;
+                    setBattleTapScoreRemaining(battleTapScoreRemainingRef.current);
+                  }
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
@@ -936,8 +944,12 @@ export default function LiveStream() {
                 onClick={() => setGiftTarget('opponent')}
                 onPointerDown={() => {
                   setGiftTarget('opponent');
-                  awardBattlePoints('opponent', 3);
                   addLiveLikes(1);
+                  if (battleTapScoreRemainingRef.current > 0) {
+                    awardBattlePoints('opponent', 1);
+                    battleTapScoreRemainingRef.current -= 1;
+                    setBattleTapScoreRemaining(battleTapScoreRemainingRef.current);
+                  }
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
