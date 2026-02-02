@@ -416,8 +416,7 @@ export default function LiveStream() {
 
   const handleBattleTap = (target: 'me' | 'opponent') => {
     setGiftTarget(target);
-    if (!isBattleMode || battleTime <= 0 || battleWinner || battleCountdown != null) return;
-    addLiveLikes(1);
+    // Likes disconnected from battle tap/shortcuts
   };
 
   useEffect(() => {
@@ -1111,7 +1110,6 @@ export default function LiveStream() {
                 onClick={() => setGiftTarget('me')}
                 onPointerDown={(e) => {
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
-                  addLiveLikes(1);
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
@@ -1129,7 +1127,6 @@ export default function LiveStream() {
                 onClick={() => setGiftTarget('opponent')}
                 onPointerDown={(e) => {
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
-                  addLiveLikes(1);
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'outline outline-2 outline-secondary/70' : ''}`}
               >
