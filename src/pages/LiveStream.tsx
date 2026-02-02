@@ -216,6 +216,7 @@ export default function LiveStream() {
   const [battleTapScoreRemaining, setBattleTapScoreRemaining] = useState(5);
   const [liveLikes, setLiveLikes] = useState(0);
   const [battleLikes, setBattleLikes] = useState(0);
+  const [battleGifterCoins, setBattleGifterCoins] = useState<Record<string, number>>({});
   const [floatingHearts, setFloatingHearts] = useState<
     Array<{ id: string; x: number; y: number; dx: number; rot: number; size: number; color: string }>
   >([]);
@@ -258,6 +259,7 @@ export default function LiveStream() {
     setGiftTarget('me');
     battleTapScoreRemainingRef.current = 5;
     setBattleTapScoreRemaining(5);
+    setBattleGifterCoins({});
   };
 
   const startBattleWithCreator = (creatorName: string) => {
@@ -347,6 +349,21 @@ export default function LiveStream() {
     } else {
       setOpponentScore((prev) => prev + points);
     }
+  };
+
+  const addBattleGifterCoins = (username: string, coins: number) => {
+    if (!isBattleMode) return;
+    if (!username || coins <= 0) return;
+    setBattleGifterCoins((prev) => ({ ...prev, [username]: (prev[username] ?? 0) + coins }));
+  };
+
+  const formatCoinsShort = (coins: number) => {
+    if (coins >= 1000) {
+      const k = Math.round((coins / 1000) * 10) / 10;
+      const label = Number.isInteger(k) ? String(Math.trunc(k)) : String(k);
+      return `${label}K`;
+    }
+    return coins.toLocaleString();
   };
 
   const spawnHeartAt = (x: number, y: number) => {
@@ -682,6 +699,7 @@ export default function LiveStream() {
     }
 
     maybeEnqueueUniverse(gift.name, viewerName);
+    addBattleGifterCoins(viewerName, gift.coins);
 
     if (isBattleMode && battleTime > 0 && !battleWinner) {
       awardBattlePoints(giftTarget, gift.coins);
@@ -853,6 +871,7 @@ export default function LiveStream() {
       }
 
       maybeEnqueueUniverse(lastSentGift.name, viewerName);
+      addBattleGifterCoins(viewerName, lastSentGift.coins);
 
       if (isBattleMode && battleTime > 0 && !battleWinner) {
         awardBattlePoints(giftTarget, lastSentGift.coins);
@@ -906,6 +925,7 @@ export default function LiveStream() {
       }
 
       maybeEnqueueUniverse(randomGift.name, randomUser);
+      addBattleGifterCoins(randomUser, randomGift.coins);
 
       if (isBattleMode && battleTime > 0 && !battleWinner) {
         const target = Math.random() > 0.5 ? 'me' : 'opponent';
@@ -961,6 +981,13 @@ export default function LiveStream() {
   const universeDurationSeconds = Math.max(6, Math.min(16, universeText.length * 0.12));
   const isLiveNormal = isBroadcast && !isBattleMode;
   const activeLikes = isBattleMode ? battleLikes : liveLikes;
+  const battleTop3 = Object.entries(battleGifterCoins)
+    .map(([username, coins]) => ({ username, coins }))
+    .sort((a, b) => b.coins - a.coins)
+    .slice(0, 3);
+  const top1 = battleTop3[0] ?? { username: '—', coins: 0 };
+  const top2 = battleTop3[1] ?? { username: '—', coins: 0 };
+  const top3 = battleTop3[2] ?? { username: '—', coins: 0 };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -1105,6 +1132,19 @@ export default function LiveStream() {
                 variant="panel"
                 className="static w-full h-full bg-black border-0 p-4"
               />
+              <div className="absolute left-3 right-16 bottom-4 z-[70] pointer-events-none">
+                <div className="h-8 px-3 rounded-full bg-black/55 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3 text-white text-[11px] font-extrabold tabular-nums">
+                  <div className="truncate">
+                    🥇 #1 <span className="text-[#E6B36A]">{top1.username}</span> <span className="text-[#E6B36A]">🪙 {formatCoinsShort(top1.coins)}</span>
+                  </div>
+                  <div className="truncate">
+                    🥈 #2 <span className="text-white/90">{top2.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top2.coins)}</span>
+                  </div>
+                  <div className="truncate">
+                    🥉 #3 <span className="text-white/90">{top3.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top3.coins)}</span>
+                  </div>
+                </div>
+              </div>
               <div className="absolute right-4 bottom-4 z-[80] pointer-events-auto">
                 <button
                   type="button"
@@ -1254,6 +1294,30 @@ export default function LiveStream() {
                 </div>
               </div>
             )}
+
+          {isBattleMode && (
+            <div className="mt-2 pointer-events-none">
+              <div className="grid grid-cols-3 gap-2 items-end">
+                <div className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-left">
+                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥈 #2</div>
+                  <div className="text-[12px] font-extrabold text-white truncate">{top2.username}</div>
+                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top2.coins)} 🪙</div>
+                </div>
+
+                <div className="rounded-3xl bg-black/55 backdrop-blur-md border border-[#E6B36A]/25 px-3 py-2 text-center shadow-[0_0_18px_rgba(230,179,106,0.10)]">
+                  <div className="text-[10px] font-black text-white tracking-wide">🥇 #1 <span className="ml-1">👑</span></div>
+                  <div className="text-[13px] font-black text-white truncate">{top1.username}</div>
+                  <div className="text-[12px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top1.coins)} 🪙</div>
+                </div>
+
+                <div className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-right">
+                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥉 #3</div>
+                  <div className="text-[12px] font-extrabold text-white truncate">{top3.username}</div>
+                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top3.coins)} 🪙</div>
+                </div>
+              </div>
+            </div>
+          )}
           </div>
         </div>
       )}
