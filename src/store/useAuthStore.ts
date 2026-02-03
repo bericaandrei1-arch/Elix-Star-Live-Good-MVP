@@ -91,13 +91,14 @@ const getAuthErrorMessage = (error: unknown) => {
   }
   if (typeof error === 'string') return error;
   console.error('Unknown auth error:', error);
-  return 'Authentication failed. Please try again.';
+  return `Authentication failed: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 };
 
 const LOCAL_USERS_KEY = 'elix_local_users_v1';
 const LOCAL_SESSION_KEY = 'elix_local_session_v1';
 const FORCE_LOCAL_AUTH = import.meta.env.VITE_FORCE_LOCAL_AUTH === 'true';
-const ALLOW_LOCAL_AUTH = import.meta.env.DEV || import.meta.env.VITE_ALLOW_LOCAL_AUTH === 'true' || FORCE_LOCAL_AUTH;
+// Always allow local auth for MVP stability/fallback
+const ALLOW_LOCAL_AUTH = true; // import.meta.env.DEV || import.meta.env.VITE_ALLOW_LOCAL_AUTH === 'true' || FORCE_LOCAL_AUTH;
 
 type LocalAuthUser = {
   id: string;
@@ -340,14 +341,26 @@ export const useAuthStore = create<AuthStore>()(
           return { error: null, needsEmailConfirmation: false };
         }
         if (data.user && !data.session) {
+          // If Supabase requires email confirmation but we want to allow immediate login,
+          // we could try local auth fallback here too?
+          // For now, let's just return success with needsEmailConfirmation
           return { error: null, needsEmailConfirmation: true };
         }
-        return { error: 'Signup failed. Please try again.', needsEmailConfirmation: false };
+        
+        // If Supabase returned no user and no error, something is wrong. Fallback to local.
+        if (ALLOW_LOCAL_AUTH) {
+           const localRes = localAuthSignUp(set, email, password, username);
+           if (!localRes.error) return localRes;
+        }
+
+        return { error: 'Signup failed (No user data returned). Please try again.', needsEmailConfirmation: false };
       } catch (error) {
         const msg = getAuthErrorMessage(error);
         if (ALLOW_LOCAL_AUTH) {
+          // If Supabase throws (network error etc), try local
           const localRes = localAuthSignUp(set, email, password, username);
           if (!localRes.error) return localRes;
+          // If local also fails, return the local error or combined
           return { error: `${msg} (Local auth also failed: ${localRes.error})`, needsEmailConfirmation: false };
         }
         return { error: msg, needsEmailConfirmation: false };

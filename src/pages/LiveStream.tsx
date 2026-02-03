@@ -21,6 +21,8 @@ import {
   ShoppingBag,
   Pencil,
   MoreHorizontal,
+  Gift,
+  MoreVertical,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { GiftPanel, GIFTS } from '../components/EnhancedGiftPanel';
@@ -32,6 +34,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { clearCachedCameraStream, getCachedCameraStream } from '../lib/cameraStream';
 import { supabase } from '../lib/supabase';
 import { useRealApi } from '../lib/apiFallback';
+import { LevelBadge } from '../components/LevelBadge';
 
 type LiveMessage = {
   id: string;
@@ -40,6 +43,7 @@ type LiveMessage = {
   level?: number;
   isGift?: boolean;
   avatar?: string;
+  isSystem?: boolean;
 };
 
 type UniverseTickerMessage = {
@@ -103,6 +107,17 @@ export default function LiveStream() {
   const viewerAvatar =
     user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewerName)}&background=random`;
   const universeGiftLabel = 'Universe';
+
+  // FaceAR State
+  const faceARCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [faceARVideoEl, setFaceARVideoEl] = useState<HTMLVideoElement | null>(null);
+  const [faceARCanvasEl, setFaceARCanvasEl] = useState<HTMLCanvasElement | null>(null);
+  const [battleGiftIconFailed, setBattleGiftIconFailed] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) setFaceARVideoEl(videoRef.current);
+    if (faceARCanvasRef.current) setFaceARCanvasEl(faceARCanvasRef.current);
+  }, [isBroadcast]);
 
   useEffect(() => {
     if (!useRealApi || !user?.id) return;
@@ -927,7 +942,6 @@ export default function LiveStream() {
       resetComboTimer();
   };
 
-  // Debug Function to Simulate Incoming Gift
   const simulateIncomingGift = () => {
       const randomGift = GIFTS[Math.floor(Math.random() * GIFTS.length)];
       const randomUser = ['fan_123', 'super_star', 'mystic_wolf'][Math.floor(Math.random() * 3)];
@@ -1001,7 +1015,8 @@ export default function LiveStream() {
       return;
     }
     handleComboClick();
-=======
+  };
+
   const openMiniProfile = (username: string, coins?: number) => {
     const avatar =
       username === myCreatorName
@@ -1030,7 +1045,6 @@ export default function LiveStream() {
     setBattleTime(0);
     const winner = myScore === opponentScore ? 'draw' : myScore > opponentScore ? 'me' : 'opponent';
     setBattleWinner(winner);
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
   };
 
   const totalScore = myScore + opponentScore;
@@ -1042,13 +1056,6 @@ export default function LiveStream() {
   const universeDurationSeconds = Math.max(6, Math.min(16, universeText.length * 0.12));
   const isLiveNormal = isBroadcast && !isBattleMode;
   const activeLikes = liveLikes;
-  const battleTop3 = Object.entries(battleGifterCoins)
-    .map(([username, coins]) => ({ username, coins }))
-    .sort((a, b) => b.coins - a.coins)
-    .slice(0, 3);
-  const top1 = battleTop3[0] ?? { username: '—', coins: 0 };
-  const top2 = battleTop3[1] ?? { username: '—', coins: 0 };
-  const top3 = battleTop3[2] ?? { username: '—', coins: 0 };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -1057,53 +1064,6 @@ export default function LiveStream() {
       <div className="absolute inset-0 bg-black pointer-events-none z-0" />
 
       {/* Live Video Placeholder or Camera Feed */}
-<<<<<<< HEAD
-      <div className="relative w-full h-full">
-        <div
-          className={`relative w-full h-full ${isBattleMode ? 'pointer-events-none' : ''}`}
-          onClick={handleScreenTap}
-        >
-          {isBroadcast ? (
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover transform scale-x-[-1]"
-              autoPlay
-              playsInline
-              muted
-            />
-          ) : (
-            <video
-              src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-              className="w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              onError={(e) => {
-                console.warn("Video failed to load, falling back to black");
-                e.currentTarget.style.display = 'block';
-                e.currentTarget.parentElement?.classList.add('bg-black');
-              }}
-            />
-          )}
-
-          {isBroadcast && activeFaceARGift && (
-            <FaceARGift
-              giftType={activeFaceARGift.type}
-              color={activeFaceARGift.color}
-              onComplete={() => setActiveFaceARGift(null)}
-            />
-          )}
-
-          {isBroadcast && cameraError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white font-bold">
-              {cameraError}
-            </div>
-          )}
-        </div>
-
-        {isBattleMode && (
-=======
       <div ref={stageRef} className="relative w-full h-full">
         <div className="absolute inset-0 pointer-events-none z-[240]">
           {floatingHearts.map((h) => (
@@ -1125,7 +1085,6 @@ export default function LiveStream() {
           ))}
         </div>
         {isBattleMode ? (
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
           <div
             className={`absolute inset-0 z-[40] flex flex-col ${isBroadcast ? 'pb-0' : 'pb-24'}`}
             style={{ paddingTop: '90px' }}
@@ -1142,15 +1101,12 @@ export default function LiveStream() {
             <div className="relative w-full h-[56%] flex">
               <button
                 type="button"
-<<<<<<< HEAD
                 onClick={(e) => {
                   e.stopPropagation();
                   setGiftTarget('me');
-=======
-                onClick={() => setGiftTarget('me')}
+                }}
                 onPointerDown={(e) => {
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
               >
@@ -1168,15 +1124,12 @@ export default function LiveStream() {
 
               <button
                 type="button"
-<<<<<<< HEAD
                 onClick={(e) => {
                   e.stopPropagation();
                   setGiftTarget('opponent');
-=======
-                onClick={() => setGiftTarget('opponent')}
+                }}
                 onPointerDown={(e) => {
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'ring-2 ring-[#4A7DFF]' : ''}`}
               >
@@ -1261,8 +1214,6 @@ export default function LiveStream() {
               )}
             </div>
 
-<<<<<<< HEAD
-=======
             {/* Chat Section (Bottom) */}
             <div className="flex-1 bg-black overflow-hidden relative pt-6">
               <ChatOverlay
@@ -1271,19 +1222,8 @@ export default function LiveStream() {
                 className="static w-full h-full bg-black border-0 p-4"
                 onLike={() => addLiveLikes(1)}
               />
-              <div className="absolute left-3 right-[132px] bottom-4 z-[70] pointer-events-auto">
-                <div className="h-8 px-3 rounded-full bg-black/55 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3 text-white text-[11px] font-extrabold tabular-nums">
-                  <button type="button" onClick={() => openMiniProfile(top1.username, top1.coins)} className="truncate">
-                    🥇 #1 <span className="text-[#E6B36A]">{top1.username}</span> <span className="text-[#E6B36A]">🪙 {formatCoinsShort(top1.coins)}</span>
-                  </button>
-                  <button type="button" onClick={() => openMiniProfile(top2.username, top2.coins)} className="truncate">
-                    🥈 #2 <span className="text-white/90">{top2.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top2.coins)}</span>
-                  </button>
-                  <button type="button" onClick={() => openMiniProfile(top3.username, top3.coins)} className="truncate">
-                    🥉 #3 <span className="text-white/90">{top3.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top3.coins)}</span>
-                  </button>
-                </div>
-              </div>
+              {/* Removed MVP Bar */}
+              
               <div className="absolute right-4 bottom-4 z-[80] pointer-events-auto flex flex-col gap-2">
                 <button
                   type="button"
@@ -1367,11 +1307,8 @@ export default function LiveStream() {
                   className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1]"
                 />
                 <FaceARGift
-                  videoElement={faceARVideoEl}
-                  canvasElement={faceARCanvasEl}
                   giftType={activeFaceARGift.type}
-                  color={activeFaceARGift.color}
-                  isActive={true}
+                  color={activeFaceARGift.color || '#E6B36A'}
                 />
               </>
             )}
@@ -1381,7 +1318,6 @@ export default function LiveStream() {
                 {cameraError}
               </div>
             )}
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
           </div>
         )}
       </div>
@@ -1392,23 +1328,6 @@ export default function LiveStream() {
             <div className="flex items-start justify-between gap-2">
               <div className="pointer-events-auto flex flex-col gap-2">
                 <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-black/60">
-                  <img
-                    src={myAvatar}
-                    alt={myCreatorName}
-                    className="w-7 h-7 rounded-full object-cover"
-                  />
-<<<<<<< HEAD
-                  <span className="text-white text-sm font-semibold truncate max-w-[120px]">
-                    {myCreatorName}
-                  </span>
-                  <span className="inline-flex items-center gap-1 bg-white rounded-full px-2 py-0.5">
-                    <Heart className="w-3 h-3 text-red-500" strokeWidth={2} />
-                    <span className="text-black text-[11px] font-bold">7</span>
-                  </span>
-                </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 text-white text-[11px] font-semibold">
-                  <span>League D2 top 99%</span>
-=======
                   <div className="min-w-0">
                     <p className="font-extrabold text-[16px] truncate max-w-[170px]">{myCreatorName}</p>
                     <div className="flex items-center gap-2 text-[13px] font-semibold text-[#E6B36A]">
@@ -1426,7 +1345,6 @@ export default function LiveStream() {
                       <span className="text-[12px] font-semibold whitespace-nowrap">Daily Ranking</span>
                     </div>
                   </div>
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 </div>
               </div>
 
@@ -1521,36 +1439,15 @@ export default function LiveStream() {
               </div>
             )}
 
-          {isBattleMode && (
-            <div className="mt-2 pointer-events-auto hidden">
-              <div className="grid grid-cols-3 gap-2 items-end">
-                <button type="button" onClick={() => openMiniProfile(top2.username, top2.coins)} className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-left">
-                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥈 #2</div>
-                  <div className="text-[12px] font-extrabold text-white truncate">{top2.username}</div>
-                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top2.coins)} 🪙</div>
-                </button>
-
-                <button type="button" onClick={() => openMiniProfile(top1.username, top1.coins)} className="rounded-3xl bg-black/55 backdrop-blur-md border border-[#E6B36A]/25 px-3 py-2 text-center shadow-[0_0_18px_rgba(230,179,106,0.10)]">
-                  <div className="text-[10px] font-black text-white tracking-wide">🥇 #1 <span className="ml-1">👑</span></div>
-                  <div className="text-[13px] font-black text-white truncate">{top1.username}</div>
-                  <div className="text-[12px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top1.coins)} 🪙</div>
-                </button>
-
-                <button type="button" onClick={() => openMiniProfile(top3.username, top3.coins)} className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-right">
-                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥉 #3</div>
-                  <div className="text-[12px] font-extrabold text-white truncate">{top3.username}</div>
-                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top3.coins)} 🪙</div>
-                </button>
-              </div>
-            </div>
-          )}
+          {/* MVP Bar removed */}
 
           </div>
         </div>
       )}
 
       {!isBroadcast && (
-      <div className="absolute top-0 left-0 right-0 z-[80] pointer-events-none">
+        <>
+        <div className="absolute top-0 left-0 right-0 z-[80] pointer-events-none">
         <div className="px-3" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}>
           <div className="flex items-start justify-between gap-3">
             <button type="button" onClick={() => openMiniProfile(myCreatorName)} className="pointer-events-auto inline-flex items-center gap-2 pr-3 pl-2 py-2 rounded-2xl bg-black/45 backdrop-blur-md border border-white/10">
@@ -1604,25 +1501,6 @@ export default function LiveStream() {
                   <LogOut size={18} />
                 </button>
               </div>
-
-              {isBattleMode && isBroadcast && (
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={startBattleMatch}
-                    className="h-7 px-2.5 rounded-full bg-[#E6B36A] text-black text-[10px] font-black border border-white/10"
-                  >
-                    Start
-                  </button>
-                  <button
-                    type="button"
-                    onClick={closeBattleMatch}
-                    className="h-7 px-2.5 rounded-full bg-black/55 text-white text-[10px] font-black border border-white/10"
-                  >
-                    End
-                  </button>
-                </div>
-              )}
             </div>
             </div>
           </div>
@@ -1642,9 +1520,8 @@ export default function LiveStream() {
             </div>
           )}
 
-
         </div>
-      </div>
+        </>
       )}
 
       {isFindCreatorsOpen && (
@@ -1709,9 +1586,6 @@ export default function LiveStream() {
           </div>
         </div>
       )}
-
-      {/* My User Level Indicator - REMOVED as requested (only on user now) */}
-      {/* <div className="absolute top-16 right-4 flex flex-col items-end z-10 animate-slide-left"> ... </div> */}
 
       {/* Gift Overlay Animation */}
       <GiftOverlay 
@@ -1793,7 +1667,6 @@ export default function LiveStream() {
         <ChatOverlay
           messages={messages}
           variant="overlay"
-<<<<<<< HEAD
           className={
             isLiveNormal
               ? "pb-[calc(84px+env(safe-area-inset-bottom))]"
@@ -1801,10 +1674,7 @@ export default function LiveStream() {
                 ? "pb-[calc(16px+env(safe-area-inset-bottom))]"
                 : undefined
           }
-=======
-          className={isLiveNormal ? "pb-[calc(84px+env(safe-area-inset-bottom))]" : undefined}
           onLike={() => addLiveLikes(1)}
->>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
         />
       )}
 

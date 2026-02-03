@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.elixstarlive.app',
   appName: 'Elix Star Live',
   webDir: 'dist',
+  server: {
+    iosScheme: "https",
+  },
   bundledWebRuntime: false
 };
 
