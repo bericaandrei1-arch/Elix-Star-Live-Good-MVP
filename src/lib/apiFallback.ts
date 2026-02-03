@@ -32,8 +32,8 @@ export const useRealApi = hasApiKeys();
 // }
 
 const handleRealApiError = async <T,>(_error: unknown, fallback: () => Promise<T>): Promise<T> => {
+  // In production, try to use fallback if real API fails, or log error
   if (isProd) {
-    // In production, try to use fallback if real API fails, or log error
     console.warn('API request failed in production, attempting fallback...');
     return fallback();
   }
