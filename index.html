@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/elix-star-live-web/favicon.svg" />
+    <link rel="manifest" href="/elix-star-live-web/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Elix Star Live</title>
+    <script type="text/javascript">
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded =
+            l.search
+              .slice(1)
+              .split('&')
+              .map(function (s) {
+                return s.replace(/~and~/g, '&');
+              })
+              .join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })(window.location);
+    </script>
+    <script type="module" crossorigin src="/elix-star-live-web/assets/index-B90cnYrL.js"></script>
+    <link rel="stylesheet" crossorigin href="/elix-star-live-web/assets/index-CuGrmmRP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
