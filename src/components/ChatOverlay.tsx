@@ -14,13 +14,16 @@ interface Message {
   avatar?: string;
 }
 
+import { Heart } from 'lucide-react';
+
 interface ChatOverlayProps {
   messages: Message[];
   variant?: 'panel' | 'overlay';
   className?: string;
+  onLike?: () => void;
 }
 
-export function ChatOverlay({ messages, variant = 'panel', className }: ChatOverlayProps) {
+export function ChatOverlay({ messages, variant = 'panel', className, onLike }: ChatOverlayProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [avatarsByUsername, setAvatarsByUsername] = useState<Record<string, string>>({});
 
@@ -117,9 +120,19 @@ export function ChatOverlay({ messages, variant = 'panel', className }: ChatOver
                 </div>
 
                 {/* Message Text */}
-                <span className={cn("font-medium text-[12px] leading-3.5 drop-shadow-sm", msg.isGift ? "text-secondary font-bold" : "text-white/80", variant === 'panel' && "pl-1")}>
+                <span className={cn("font-medium text-[12px] leading-3.5 drop-shadow-sm flex-1", msg.isGift ? "text-secondary font-bold" : "text-white/80", variant === 'panel' && "pl-1")}>
                   {msg.text}
                 </span>
+
+                {/* Like Button for Message (Triggers Stream Like) */}
+                {onLike && !msg.isSystem && (
+                  <button
+                    onClick={onLike}
+                    className="ml-2 p-1 text-white/40 hover:text-red-500 transition-colors"
+                  >
+                    <Heart size={12} />
+                  </button>
+                )}
               </div>
             </div>
           </div>

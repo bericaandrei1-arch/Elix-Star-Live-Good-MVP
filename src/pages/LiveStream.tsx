@@ -62,11 +62,13 @@ export default function LiveStream() {
   const location = useLocation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const opponentVideoRef = useRef<HTMLVideoElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const setPromo = useLivePromoStore((s) => s.setPromo);
   const updateUser = useAuthStore((s) => s.updateUser);
   const effectiveStreamId = streamId || 'broadcast';
-  const PROMOTE_LIKES_THRESHOLD = 5000;
+  const PROMOTE_LIKES_THRESHOLD_LIVE = 10_000;
+  const PROMOTE_LIKES_THRESHOLD_BATTLE = 5_000;
   
   const [showGiftPanel, setShowGiftPanel] = useState(false);
   const [currentGift, setCurrentGift] = useState<string | null>(null);
@@ -223,8 +225,22 @@ export default function LiveStream() {
   const [battleWinner, setBattleWinner] = useState<'me' | 'opponent' | 'draw' | null>(null);
   const [giftTarget, setGiftTarget] = useState<'me' | 'opponent'>('me');
   const lastScreenTapRef = useRef<number>(0);
-  const [, setLiveLikes] = useState(0);
-  const [, setBattleLikes] = useState(0);
+  const battleTapScoreRemainingRef = useRef<number>(5);
+  const [battleTapScoreRemaining, setBattleTapScoreRemaining] = useState(5);
+  const battleScoreTapWindowRef = useRef<{ windowStart: number; count: number }>({ windowStart: 0, count: 0 });
+  const battleTripleTapRef = useRef<{ target: 'me' | 'opponent' | null; lastTapAt: number; count: number }>({
+    target: null,
+    lastTapAt: 0,
+    count: 0,
+  });
+  const [battleCountdown, setBattleCountdown] = useState<number | null>(null);
+  const battleKeyboardLikeArmedRef = useRef(true);
+  const [liveLikes, setLiveLikes] = useState(0);
+  const [battleGifterCoins, setBattleGifterCoins] = useState<Record<string, number>>({});
+  const [floatingHearts, setFloatingHearts] = useState<
+    Array<{ id: string; x: number; y: number; dx: number; rot: number; size: number; color: string }>
+  >([]);
+  const [miniProfile, setMiniProfile] = useState<null | { username: string; avatar: string; level: number | null; coins?: number }>(null);
   const [universeQueue, setUniverseQueue] = useState<UniverseTickerMessage[]>([]);
   const [currentUniverse, setCurrentUniverse] = useState<UniverseTickerMessage | null>(null);
 
@@ -254,16 +270,45 @@ export default function LiveStream() {
       setIsBattleMode(false);
       setBattleTime(300);
       setBattleWinner(null);
+      setBattleCountdown(null);
+      battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
+      battleTripleTapRef.current = { target: null, lastTapAt: 0, count: 0 };
+      setMiniProfile(null);
       return;
     }
     setIsBattleMode(true);
-    setBattleTime(180);
+    setBattleTime(0);
     setMyScore(0);
     setOpponentScore(0);
     setBattleWinner(null);
     setGiftTarget('me');
     setShowGiftPanel(false);
+    battleTapScoreRemainingRef.current = 5;
+    setBattleTapScoreRemaining(5);
+    setBattleGifterCoins({});
+    setBattleCountdown(3);
+    battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
+    battleTripleTapRef.current = { target: null, lastTapAt: 0, count: 0 };
   };
+
+  useEffect(() => {
+    if (!isBattleMode) return;
+    if (battleCountdown == null) return;
+
+    const tick = window.setInterval(() => {
+      setBattleCountdown((prev) => {
+        if (prev == null) return null;
+        if (prev <= 1) {
+          window.clearInterval(tick);
+          setBattleTime(180);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(tick);
+  }, [isBattleMode, battleCountdown]);
 
   const startBattleWithCreator = (creatorName: string) => {
     setOpponentCreatorName(creatorName);
@@ -315,27 +360,11 @@ export default function LiveStream() {
   const addLiveLikes = (delta: number) => {
     if (delta <= 0) return;
 
-    if (isBattleMode) {
-      setBattleLikes((prev) => {
-        const next = prev + delta;
-        if (prev < PROMOTE_LIKES_THRESHOLD && next >= PROMOTE_LIKES_THRESHOLD) {
-          setPromo({
-            type: 'battle',
-            streamId: effectiveStreamId,
-            likes: next,
-            createdAt: Date.now(),
-          });
-        }
-        return next;
-      });
-      return;
-    }
-
     setLiveLikes((prev) => {
       const next = prev + delta;
-      if (prev < PROMOTE_LIKES_THRESHOLD && next >= PROMOTE_LIKES_THRESHOLD) {
+      if (prev < PROMOTE_LIKES_THRESHOLD_LIVE && next >= PROMOTE_LIKES_THRESHOLD_LIVE) {
         setPromo({
-          type: 'live',
+          type: isBattleMode ? 'battle' : 'live',
           streamId: effectiveStreamId,
           likes: next,
           createdAt: Date.now(),
@@ -353,6 +382,91 @@ export default function LiveStream() {
       setOpponentScore((prev) => prev + points);
     }
   };
+
+  const addBattleGifterCoins = (username: string, coins: number) => {
+    if (!isBattleMode) return;
+    if (!username || coins <= 0) return;
+    setBattleGifterCoins((prev) => ({ ...prev, [username]: (prev[username] ?? 0) + coins }));
+  };
+
+  const formatCoinsShort = (coins: number) => {
+    if (coins >= 1000) {
+      const k = Math.round((coins / 1000) * 10) / 10;
+      const label = Number.isInteger(k) ? String(Math.trunc(k)) : String(k);
+      return `${label}K`;
+    }
+    return coins.toLocaleString();
+  };
+
+  const spawnHeartAt = (x: number, y: number, colorOverride?: string) => {
+    const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const dx = Math.round((Math.random() * 2 - 1) * 48);
+    const rot = Math.round((Math.random() * 2 - 1) * 18);
+    const size = Math.round(16 + Math.random() * 10);
+    const colors = ['#E6B36A', '#F4C2C2', '#FFFFFF'];
+    const color = colorOverride ?? colors[Math.floor(Math.random() * colors.length)];
+
+    setFloatingHearts((prev) => [...prev.slice(-28), { id, x, y, dx, rot, size, color }]);
+    window.setTimeout(() => {
+      setFloatingHearts((prev) => prev.filter((h) => h.id !== id));
+    }, 950);
+  };
+
+  const spawnHeartFromClient = (clientX: number, clientY: number, colorOverride?: string) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    spawnHeartAt(clientX - rect.left, clientY - rect.top, colorOverride);
+  };
+
+  const spawnHeartAtSide = (target: 'me' | 'opponent') => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const x = rect.width * (target === 'me' ? 0.25 : 0.75);
+    const y = rect.height * 0.62;
+    spawnHeartAt(x, y, '#FF2D55');
+  };
+
+  const handleBattleTap = (target: 'me' | 'opponent') => {
+    setGiftTarget(target);
+    // Likes disconnected from battle tap/shortcuts
+  };
+
+  useEffect(() => {
+    if (!isBattleMode) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (battleWinner) return;
+
+      const activeEl = document.activeElement;
+      if (activeEl instanceof HTMLElement) {
+        const tag = activeEl.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || activeEl.isContentEditable) return;
+      }
+
+      const key = e.key;
+      const code = e.code;
+
+      if (key === 'ArrowLeft' || key === 'a' || key === 'A' || code === 'Numpad4') {
+        e.preventDefault();
+        handleBattleTap('me');
+        spawnHeartAtSide('me');
+        return;
+      }
+
+      if (key === 'ArrowRight' || key === 'd' || key === 'D' || code === 'Numpad6') {
+        e.preventDefault();
+        handleBattleTap('opponent');
+        spawnHeartAtSide('opponent');
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, { passive: false });
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isBattleMode, battleWinner]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -601,8 +715,8 @@ export default function LiveStream() {
       setCoinBalance(prev => prev - gift.coins);
     }
 
-    addLiveLikes(gift.coins);
     maybeEnqueueUniverse(gift.name, viewerName);
+    addBattleGifterCoins(viewerName, gift.coins);
 
     if (isBattleMode && battleTime > 0 && !battleWinner) {
       awardBattlePoints(giftTarget, gift.coins);
@@ -654,7 +768,7 @@ export default function LiveStream() {
 
   const handleShare = async () => {
     const shareText = `${myCreatorName} is live on ELIX STAR`;
-    const shareUrl = window.location.href;
+    const shareUrl = `https://app.com/live/${effectiveStreamId}`;
     const nav = typeof navigator === 'undefined' ? undefined : navigator;
     try {
       if (nav && 'share' in nav) {
@@ -773,8 +887,8 @@ export default function LiveStream() {
         setCoinBalance(prev => prev - lastSentGift.coins);
       }
 
-      addLiveLikes(lastSentGift.coins);
       maybeEnqueueUniverse(lastSentGift.name, viewerName);
+      addBattleGifterCoins(viewerName, lastSentGift.coins);
 
       if (isBattleMode && battleTime > 0 && !battleWinner) {
         awardBattlePoints(giftTarget, lastSentGift.coins);
@@ -828,6 +942,12 @@ export default function LiveStream() {
       }
 
       maybeEnqueueUniverse(randomGift.name, randomUser);
+      addBattleGifterCoins(randomUser, randomGift.coins);
+
+      if (isBattleMode && battleTime > 0 && !battleWinner) {
+        const target = Math.random() > 0.5 ? 'me' : 'opponent';
+        awardBattlePoints(target, randomGift.coins);
+      }
       
       const giftMsg = {
           id: Date.now().toString(),
@@ -881,6 +1001,36 @@ export default function LiveStream() {
       return;
     }
     handleComboClick();
+=======
+  const openMiniProfile = (username: string, coins?: number) => {
+    const avatar =
+      username === myCreatorName
+        ? myAvatar
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
+    const level = username === myCreatorName ? userLevel : null;
+    setMiniProfile({ username, avatar, level, coins });
+  };
+
+  const closeMiniProfile = () => setMiniProfile(null);
+
+  const startBattleMatch = () => {
+    if (!isBattleMode) return;
+    setMyScore(0);
+    setOpponentScore(0);
+    setBattleWinner(null);
+    setBattleGifterCoins({});
+    battleScoreTapWindowRef.current = { windowStart: 0, count: 0 };
+    setBattleTime(0);
+    setBattleCountdown(3);
+  };
+
+  const closeBattleMatch = () => {
+    if (!isBattleMode) return;
+    setBattleCountdown(null);
+    setBattleTime(0);
+    const winner = myScore === opponentScore ? 'draw' : myScore > opponentScore ? 'me' : 'opponent';
+    setBattleWinner(winner);
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
   };
 
   const totalScore = myScore + opponentScore;
@@ -891,6 +1041,14 @@ export default function LiveStream() {
     : '';
   const universeDurationSeconds = Math.max(6, Math.min(16, universeText.length * 0.12));
   const isLiveNormal = isBroadcast && !isBattleMode;
+  const activeLikes = liveLikes;
+  const battleTop3 = Object.entries(battleGifterCoins)
+    .map(([username, coins]) => ({ username, coins }))
+    .sort((a, b) => b.coins - a.coins)
+    .slice(0, 3);
+  const top1 = battleTop3[0] ?? { username: '—', coins: 0 };
+  const top2 = battleTop3[1] ?? { username: '—', coins: 0 };
+  const top3 = battleTop3[2] ?? { username: '—', coins: 0 };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -899,6 +1057,7 @@ export default function LiveStream() {
       <div className="absolute inset-0 bg-black pointer-events-none z-0" />
 
       {/* Live Video Placeholder or Camera Feed */}
+<<<<<<< HEAD
       <div className="relative w-full h-full">
         <div
           className={`relative w-full h-full ${isBattleMode ? 'pointer-events-none' : ''}`}
@@ -944,17 +1103,54 @@ export default function LiveStream() {
         </div>
 
         {isBattleMode && (
+=======
+      <div ref={stageRef} className="relative w-full h-full">
+        <div className="absolute inset-0 pointer-events-none z-[240]">
+          {floatingHearts.map((h) => (
+            <div
+              key={h.id}
+              className="absolute elix-heart-float"
+              style={
+                {
+                  left: `${h.x}px`,
+                  top: `${h.y}px`,
+                  transform: 'translate(-50%, -50%)',
+                  ['--elix-heart-dx' as any]: `${h.dx}px`,
+                  ['--elix-heart-rot' as any]: `${h.rot}deg`,
+                } as React.CSSProperties
+              }
+            >
+              <Heart className="drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]" style={{ width: h.size, height: h.size, color: h.color, fill: h.color }} />
+            </div>
+          ))}
+        </div>
+        {isBattleMode ? (
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
           <div
             className={`absolute inset-0 z-[40] flex flex-col ${isBroadcast ? 'pb-0' : 'pb-24'}`}
             style={{ paddingTop: '90px' }}
             onClick={handleScreenTap}
           >
+            {battleCountdown != null && (
+              <div className="absolute inset-0 z-[260] pointer-events-none flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-black/55 border border-white/15 backdrop-blur-md flex items-center justify-center">
+                  <div className="text-white text-5xl font-black tabular-nums">{battleCountdown}</div>
+                </div>
+              </div>
+            )}
+
             <div className="relative w-full h-[56%] flex">
               <button
                 type="button"
+<<<<<<< HEAD
                 onClick={(e) => {
                   e.stopPropagation();
                   setGiftTarget('me');
+=======
+                onClick={() => setGiftTarget('me')}
+                onPointerDown={(e) => {
+                  spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 }}
                 className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
               >
@@ -972,9 +1168,15 @@ export default function LiveStream() {
 
               <button
                 type="button"
+<<<<<<< HEAD
                 onClick={(e) => {
                   e.stopPropagation();
                   setGiftTarget('opponent');
+=======
+                onClick={() => setGiftTarget('opponent')}
+                onPointerDown={(e) => {
+                  spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'ring-2 ring-[#4A7DFF]' : ''}`}
               >
@@ -1059,6 +1261,127 @@ export default function LiveStream() {
               )}
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Chat Section (Bottom) */}
+            <div className="flex-1 bg-black overflow-hidden relative pt-6">
+              <ChatOverlay
+                messages={messages}
+                variant="panel"
+                className="static w-full h-full bg-black border-0 p-4"
+                onLike={() => addLiveLikes(1)}
+              />
+              <div className="absolute left-3 right-[132px] bottom-4 z-[70] pointer-events-auto">
+                <div className="h-8 px-3 rounded-full bg-black/55 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3 text-white text-[11px] font-extrabold tabular-nums">
+                  <button type="button" onClick={() => openMiniProfile(top1.username, top1.coins)} className="truncate">
+                    🥇 #1 <span className="text-[#E6B36A]">{top1.username}</span> <span className="text-[#E6B36A]">🪙 {formatCoinsShort(top1.coins)}</span>
+                  </button>
+                  <button type="button" onClick={() => openMiniProfile(top2.username, top2.coins)} className="truncate">
+                    🥈 #2 <span className="text-white/90">{top2.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top2.coins)}</span>
+                  </button>
+                  <button type="button" onClick={() => openMiniProfile(top3.username, top3.coins)} className="truncate">
+                    🥉 #3 <span className="text-white/90">{top3.username}</span> <span className="text-white/80">🪙 {formatCoinsShort(top3.coins)}</span>
+                  </button>
+                </div>
+              </div>
+              <div className="absolute right-4 bottom-4 z-[80] pointer-events-auto flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="w-11 h-11 bg-black/70 rounded-full flex items-center justify-center text-white shadow-lg border border-white/20 hover:bg-black/80 transition"
+                >
+                  <Share2 className="w-5 h-5" strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => alert('Reported')}
+                  className="w-11 h-11 bg-black/70 rounded-full flex items-center justify-center text-white shadow-lg border border-white/20 hover:bg-black/80 transition"
+                >
+                  <MoreVertical className="w-5 h-5" strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGiftPanel(true)}
+                  className="w-11 h-11 bg-black/70 rounded-full flex items-center justify-center text-white shadow-lg border border-white/20 hover:bg-black/80 transition"
+                >
+                  {battleGiftIconFailed ? (
+                    <Gift className="w-6 h-6 text-white" strokeWidth={2} />
+                  ) : (
+                    <img
+                      src="/Icons/Gift%20icon.png?v=3"
+                      alt="Gift"
+                      className="w-6 h-6 object-contain"
+                      onError={() => setBattleGiftIconFailed(true)}
+                    />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="relative w-full h-full"
+            onPointerDown={(e) => {
+              if (e.target instanceof Element) {
+                const interactive = e.target.closest('button, a, input, textarea, select, [role="button"]');
+                if (interactive) return;
+              }
+              spawnHeartFromClient(e.clientX, e.clientY);
+              addLiveLikes(1);
+              const now = Date.now();
+              const last = lastScreenTapRef.current;
+              lastScreenTapRef.current = now;
+              if (now - last <= 320) {
+                handleComboClick();
+              }
+            }}
+          >
+            {isBroadcast ? (
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover transform scale-x-[-1]"
+                autoPlay
+                playsInline
+                muted
+              />
+            ) : (
+              <video
+                src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                className="w-full h-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+                onError={(e) => {
+                  console.warn("Video failed to load, falling back to black");
+                  e.currentTarget.style.display = 'block';
+                  e.currentTarget.parentElement?.classList.add('bg-black');
+                }}
+              />
+            )}
+
+            {isBroadcast && activeFaceARGift && (
+              <>
+                <canvas
+                  ref={faceARCanvasRef}
+                  className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1]"
+                />
+                <FaceARGift
+                  videoElement={faceARVideoEl}
+                  canvasElement={faceARCanvasEl}
+                  giftType={activeFaceARGift.type}
+                  color={activeFaceARGift.color}
+                  isActive={true}
+                />
+              </>
+            )}
+
+            {isBroadcast && cameraError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white font-bold">
+                {cameraError}
+              </div>
+            )}
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
           </div>
         )}
       </div>
@@ -1074,6 +1397,7 @@ export default function LiveStream() {
                     alt={myCreatorName}
                     className="w-7 h-7 rounded-full object-cover"
                   />
+<<<<<<< HEAD
                   <span className="text-white text-sm font-semibold truncate max-w-[120px]">
                     {myCreatorName}
                   </span>
@@ -1084,6 +1408,25 @@ export default function LiveStream() {
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 text-white text-[11px] font-semibold">
                   <span>League D2 top 99%</span>
+=======
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-[16px] truncate max-w-[170px]">{myCreatorName}</p>
+                    <div className="flex items-center gap-2 text-[13px] font-semibold text-[#E6B36A]">
+                      <motion.div
+                        key={activeLikes}
+                        initial={{ scale: 1 }}
+                        animate={{ scale: [1, 1.4, 1] }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Heart className="w-4 h-4 text-red-500 fill-red-500" strokeWidth={2} />
+                      </motion.div>
+                      <span>{activeLikes.toLocaleString()}</span>
+                      <span className="text-[#E6B36A]/60">•</span>
+                      <Flame className="w-4 h-4" strokeWidth={2} />
+                      <span className="text-[12px] font-semibold whitespace-nowrap">Daily Ranking</span>
+                    </div>
+                  </div>
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
                 </div>
               </div>
 
@@ -1177,6 +1520,31 @@ export default function LiveStream() {
                 </div>
               </div>
             )}
+
+          {isBattleMode && (
+            <div className="mt-2 pointer-events-auto hidden">
+              <div className="grid grid-cols-3 gap-2 items-end">
+                <button type="button" onClick={() => openMiniProfile(top2.username, top2.coins)} className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-left">
+                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥈 #2</div>
+                  <div className="text-[12px] font-extrabold text-white truncate">{top2.username}</div>
+                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top2.coins)} 🪙</div>
+                </button>
+
+                <button type="button" onClick={() => openMiniProfile(top1.username, top1.coins)} className="rounded-3xl bg-black/55 backdrop-blur-md border border-[#E6B36A]/25 px-3 py-2 text-center shadow-[0_0_18px_rgba(230,179,106,0.10)]">
+                  <div className="text-[10px] font-black text-white tracking-wide">🥇 #1 <span className="ml-1">👑</span></div>
+                  <div className="text-[13px] font-black text-white truncate">{top1.username}</div>
+                  <div className="text-[12px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top1.coins)} 🪙</div>
+                </button>
+
+                <button type="button" onClick={() => openMiniProfile(top3.username, top3.coins)} className="rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 px-3 py-2 text-right">
+                  <div className="text-[10px] font-black text-white/90 tracking-wide">🥉 #3</div>
+                  <div className="text-[12px] font-extrabold text-white truncate">{top3.username}</div>
+                  <div className="text-[11px] font-black text-[#E6B36A] tabular-nums">{formatCoinsShort(top3.coins)} 🪙</div>
+                </button>
+              </div>
+            </div>
+          )}
+
           </div>
         </div>
       )}
@@ -1185,20 +1553,25 @@ export default function LiveStream() {
       <div className="absolute top-0 left-0 right-0 z-[80] pointer-events-none">
         <div className="px-3" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}>
           <div className="flex items-start justify-between gap-3">
-            <div className="pointer-events-auto inline-flex items-center gap-2 pr-3 pl-2 py-2 rounded-2xl bg-black/45 backdrop-blur-md border border-none">
+            <button type="button" onClick={() => openMiniProfile(myCreatorName)} className="pointer-events-auto inline-flex items-center gap-2 pr-3 pl-2 py-2 rounded-2xl bg-black/45 backdrop-blur-md border border-white/10">
               <img
                 src={myAvatar}
                 alt={myCreatorName}
                 className="w-10 h-10 rounded-full object-cover border border-[#E6B36A]/50"
               />
               <div className="min-w-0">
+                <p className="text-white font-extrabold text-[14px] truncate max-w-[160px]">{myCreatorName}</p>
                 <div className="flex items-center gap-2">
-                  
-                  <p className="text-white font-extrabold text-[14px] truncate max-w-[160px]">{myCreatorName}</p>
+                  <div className="flex items-center gap-1">
+                    <Heart className="w-3.5 h-3.5 text-[#E6B36A]" strokeWidth={2.2} />
+                    <span className="text-white/90 text-[10px] font-extrabold tabular-nums">
+                      {activeLikes.toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-[#E6B36A]/80 text-[10px] font-extrabold tracking-widest">LIVE</p>
                 </div>
-                <p className="text-[#E6B36A]/80 text-[10px] font-extrabold tracking-widest">LIVE</p>
               </div>
-            </div>
+            </button>
 
             <div className="pointer-events-auto flex flex-col items-center gap-2">
               <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-none flex items-center gap-2">
@@ -1217,18 +1590,40 @@ export default function LiveStream() {
               )}
             </div>
 
-            <div className="pointer-events-auto flex items-center gap-2">
-              <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-none flex items-center gap-2">
-                <User className="w-4 h-4 text-white" strokeWidth={2} />
-                <span className="text-white font-extrabold text-xs">10.2k</span>
+            <div className="pointer-events-auto flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2">
+                <div className="h-8 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                  <User className="w-4 h-4 text-white" strokeWidth={2} />
+                  <span className="text-white font-extrabold text-xs">10.2k</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={isBroadcast ? stopBroadcast : () => navigate('/')}
+                  className="w-9 h-9 rounded-full bg-black/70 border border-white/10 text-white flex items-center justify-center"
+                >
+                  <LogOut size={18} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={isBroadcast ? stopBroadcast : () => navigate('/')}
-                className="w-9 h-9 rounded-full bg-black/70 border border-none text-white flex items-center justify-center"
-              >
-                <LogOut size={18} />
-              </button>
+
+              {isBattleMode && isBroadcast && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={startBattleMatch}
+                    className="h-7 px-2.5 rounded-full bg-[#E6B36A] text-black text-[10px] font-black border border-white/10"
+                  >
+                    Start
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeBattleMatch}
+                    className="h-7 px-2.5 rounded-full bg-black/55 text-white text-[10px] font-black border border-white/10"
+                  >
+                    End
+                  </button>
+                </div>
+              )}
+            </div>
             </div>
           </div>
 
@@ -1324,6 +1719,73 @@ export default function LiveStream() {
         onEnded={handleGiftEnded} 
       />
 
+      <AnimatePresence>
+        {miniProfile && (
+          <motion.div
+            className="absolute inset-0 z-[400] pointer-events-auto flex items-end justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeMiniProfile}
+          >
+            <div className="absolute inset-0 bg-black/55" />
+            <motion.div
+              className="relative w-full md:w-[450px] rounded-t-3xl bg-black/90 border border-white/10 px-4 pt-4 pb-[calc(20px+env(safe-area-inset-bottom))]"
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 24, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <img src={miniProfile.avatar} alt={miniProfile.username} className="w-12 h-12 rounded-full object-cover border border-[#E6B36A]/40" />
+                  <div className="min-w-0">
+                    <div className="text-white font-black text-[16px] truncate">{miniProfile.username}</div>
+                    <div className="text-white/70 text-[12px] font-bold">
+                      {typeof miniProfile.level === 'number' ? (
+                        <span className="inline-flex items-center gap-2">
+                          <LevelBadge level={miniProfile.level} size={10} layout="fixed" />
+                          <span>Level {miniProfile.level}</span>
+                        </span>
+                      ) : (
+                        'Level —'
+                      )}
+                      {miniProfile.coins != null ? ` • 🪙 ${formatCoinsShort(miniProfile.coins)}` : ''}
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onClick={closeMiniProfile} className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                <button type="button" onClick={() => alert('Followed')} className="h-10 rounded-xl bg-[#E6B36A] text-black text-xs font-black">
+                  Follow
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowGiftPanel(true);
+                    closeMiniProfile();
+                  }}
+                  className="h-10 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-black"
+                >
+                  Gift
+                </button>
+                <button type="button" onClick={handleShare} className="h-10 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-black">
+                  Share
+                </button>
+                <button type="button" onClick={() => alert('Blocked')} className="h-10 rounded-xl bg-red-950/70 border border-red-400/20 text-white text-xs font-black">
+                  Block
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       
 
       {/* Chat Area */}
@@ -1331,6 +1793,7 @@ export default function LiveStream() {
         <ChatOverlay
           messages={messages}
           variant="overlay"
+<<<<<<< HEAD
           className={
             isLiveNormal
               ? "pb-[calc(84px+env(safe-area-inset-bottom))]"
@@ -1338,6 +1801,10 @@ export default function LiveStream() {
                 ? "pb-[calc(16px+env(safe-area-inset-bottom))]"
                 : undefined
           }
+=======
+          className={isLiveNormal ? "pb-[calc(84px+env(safe-area-inset-bottom))]" : undefined}
+          onLike={() => addLiveLikes(1)}
+>>>>>>> 1a7bddd4d086a03b8c50e2ad4bbf3169178ca17f
         />
       )}
 
@@ -1375,6 +1842,7 @@ export default function LiveStream() {
                     className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-gray-400"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
+                    onPointerDown={() => addLiveLikes(1)}
                 />
                 <button type="submit" className="text-white">
                     <Send size={18} />

@@ -59,7 +59,7 @@ function App() {
     <div className="min-h-screen bg-background text-text font-sans">
       <main className={cn("min-h-screen", !isFullScreen && "pb-32")}>
         <Routes>
-          <Route path="/" element={<VideoFeed />} />
+          <Route path="/" element={<Navigate to="/feed" replace />} />
           <Route path="/feed" element={<VideoFeed />} />
           {isDev && <Route path="/design" element={<DesignSystem />} />}
           <Route path="/following" element={<FollowingFeed />} />

@@ -309,68 +309,46 @@ export const useAuthStore = create<AuthStore>()(
 
     signUpWithPassword: async (email, password, username) => {
       if (FORCE_LOCAL_AUTH || !supabaseConfig.hasValidConfig) {
-        if (ALLOW_LOCAL_AUTH) return localAuthSignUpOrSignIn(set, email, password, username);
+        if (ALLOW_LOCAL_AUTH) return localAuthSignUp(set, email, password, username);
         return { error: 'Authentication is not configured.', needsEmailConfirmation: false };
       }
-      const userData: Record<string, unknown> = { level: 1 };
-      if (username) userData.username = username;
-      const emailRedirectTo =
-        typeof window !== 'undefined'
-          ? `${window.location.origin}/auth/callback`
-          : undefined;
       try {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: userData,
-            emailRedirectTo
-          }
+            data: {
+              username: username || email.split('@')[0],
+              avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(username || '')}&background=random`,
+              full_name: username,
+            },
+          },
         });
-
         if (error) {
-          const normalized = error.message.toLowerCase();
-          if (normalized.includes('user already registered') || normalized.includes('already registered')) {
-            return { error: 'Email already used. Please sign in instead.', needsEmailConfirmation: false };
-          }
           if (ALLOW_LOCAL_AUTH) {
-            const localRes = localAuthSignUpOrSignIn(set, email, password, username);
-            if (!localRes.error) return { error: null, needsEmailConfirmation: false };
-            return { error: localRes.error ?? error.message, needsEmailConfirmation: false };
+            const localRes = localAuthSignUp(set, email, password, username);
+            if (!localRes.error) return localRes;
+            if (isInfraAuthError(error.message)) {
+              return { error: `Supabase signup failed (${error.message}). ${localRes.error}`, needsEmailConfirmation: false };
+            }
           }
           return { error: error.message, needsEmailConfirmation: false };
         }
-
-        const session = data.session ?? null;
-        if (session) {
+        if (data.user && data.session) {
           clearLocalSession();
-          set({ session, user: mapSessionToUser(session), isAuthenticated: true, isLoading: false, authMode: 'supabase' });
+          set({ session: data.session, user: mapSessionToUser(data.session), isAuthenticated: true, isLoading: false, authMode: 'supabase' });
           return { error: null, needsEmailConfirmation: false };
         }
-
         if (data.user && !data.session) {
-          const { data: sessionData } = await supabase.auth.getSession();
-          const recoveredSession = sessionData.session ?? null;
-          if (recoveredSession) {
-            clearLocalSession();
-            set({ session: recoveredSession, user: mapSessionToUser(recoveredSession), isAuthenticated: true, isLoading: false, authMode: 'supabase' });
-            return { error: null, needsEmailConfirmation: false };
-          }
           return { error: null, needsEmailConfirmation: true };
         }
-
-        if (ALLOW_LOCAL_AUTH) {
-          const localRes = localAuthSignUpOrSignIn(set, email, password, username);
-          if (!localRes.error) return { error: null, needsEmailConfirmation: false };
-          return { error: localRes.error, needsEmailConfirmation: false };
-        }
-        return { error: 'Unknown signup state. Please try again.', needsEmailConfirmation: false };
+        return { error: 'Signup failed. Please try again.', needsEmailConfirmation: false };
       } catch (error) {
         const msg = getAuthErrorMessage(error);
         if (ALLOW_LOCAL_AUTH) {
-          const localRes = localAuthSignUpOrSignIn(set, email, password, username);
-          if (!localRes.error) return { error: null, needsEmailConfirmation: false };
-          if (isInfraAuthError(msg)) return { error: localRes.error ?? msg, needsEmailConfirmation: false };
+          const localRes = localAuthSignUp(set, email, password, username);
+          if (!localRes.error) return localRes;
+          return { error: `${msg} (Local auth also failed: ${localRes.error})`, needsEmailConfirmation: false };
         }
         return { error: msg, needsEmailConfirmation: false };
       }

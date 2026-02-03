@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Share2, Menu, Lock, Play, Heart, EyeOff, Camera, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LevelBadge } from '../components/LevelBadge';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
 import { uploadAvatar } from '../lib/avatarUpload';
@@ -13,7 +12,6 @@ export default function Profile() {
   const displayName = user?.name ?? 'User';
   const displayUsername = user?.username ?? 'user';
   const displayAvatar = user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-  const level = user?.level ?? 1;
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
 
@@ -65,7 +63,6 @@ export default function Profile() {
         <header className="flex justify-between items-center px-4 mb-6">
             <div className="w-6"></div> {/* Spacer */}
             <h1 className="font-black text-2xl flex items-center gap-2 text-white/90 tracking-tight drop-shadow-sm">
-                <LevelBadge level={level} size={10} layout="fixed" />
                 {displayName}
             </h1>
             <div className="flex space-x-4">
@@ -81,9 +78,6 @@ export default function Profile() {
                  <img src={displayAvatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
                  <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Camera size={24} className="text-white" />
-                 </div>
-                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-                   <LevelBadge level={level} size={10} layout="fixed" />
                  </div>
                  <input 
                    type="file" 
@@ -119,7 +113,7 @@ export default function Profile() {
                   <div className="text-xs font-extrabold text-white/80">A1</div>
                 </div>
                 <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex items-center justify-center">
-                  <LevelBadge level={level} size={10} layout="fixed" />
+                  <div className="text-xs font-extrabold text-white/80">LVL</div>
                 </div>
                 <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex items-center justify-center">
                   <div className="text-xs font-extrabold text-white/80">TOP</div>

@@ -48,7 +48,7 @@ function PromoCard({ promo, onOpen }: { promo: LivePromo; onOpen: () => void }) 
         <p className="text-white text-xl font-black">
           {promo.type === 'battle' ? 'Live Battle' : 'Live Stream'}
         </p>
-        <p className="text-[#E6B36A] text-sm font-bold">{Math.max(5000, promo.likes).toLocaleString()} likes</p>
+        <p className="text-[#E6B36A] text-sm font-bold">{promo.likes.toLocaleString()} likes</p>
       </div>
 
       <div className="absolute left-4 bottom-12 z-10">
@@ -67,7 +67,14 @@ export default function VideoFeed() {
   const [activeTab, setActiveTab] = useState<HomeTopTab>('foryou');
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const promoCount = (promoBattle ? 1 : 0) + (promoLive ? 1 : 0);
+  const promos: FeedItem[] =
+    activeTab === 'foryou'
+      ? [
+          ...(promoBattle ? ([{ kind: 'promo', promo: promoBattle }] as const) : []),
+          ...(promoLive ? ([{ kind: 'promo', promo: promoLive }] as const) : []),
+        ]
+      : [];
+  const promoCount = promos.length;
   const [loopCount, setLoopCount] = useState(1);
 
   const visibleVideos = blockedUserIds.length
@@ -76,11 +83,7 @@ export default function VideoFeed() {
 
   const videoIds = Array.from({ length: loopCount }).flatMap(() => visibleVideos.map((v) => v.id));
 
-  const feedItems: FeedItem[] = [
-    ...(promoBattle ? ([{ kind: 'promo', promo: promoBattle }] as const) : []),
-    ...(promoLive ? ([{ kind: 'promo', promo: promoLive }] as const) : []),
-    ...videoIds.map((id) => ({ kind: 'video' as const, videoId: id })),
-  ];
+  const feedItems: FeedItem[] = [...promos, ...videoIds.map((id) => ({ kind: 'video' as const, videoId: id }))];
 
   useEffect(() => {
     if (visibleVideos.length === 0) return;
