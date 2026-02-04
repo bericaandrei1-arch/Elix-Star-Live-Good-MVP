@@ -1,9 +1,7 @@
 
 const giftUrl = (path: string) => {
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  const encodedPath = cleanPath.split('/').map((segment) => encodeURIComponent(segment)).join('/');
-  const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-  return `${baseUrl}${encodedPath}`;
+  // Simply return the path - Vite will handle it correctly
+  return path;
 };
 
 export type GiftType = 'universe' | 'big' | 'small';
