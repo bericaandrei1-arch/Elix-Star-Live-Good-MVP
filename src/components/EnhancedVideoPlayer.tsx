@@ -375,7 +375,7 @@ export default function EnhancedVideoPlayer({
       className="relative w-full h-full snap-start overflow-hidden border-b border-gray-800 flex justify-center"
     >
       {/* Video Element */}
-      <div className="absolute inset-0 w-full max-w-[500px] mx-auto">
+      <div className="absolute top-20 right-0 bottom-0 left-0 w-full max-w-[500px] mx-auto">
         <audio ref={audioRef} preload="auto" className="hidden" />
         <video
           ref={videoRef}
