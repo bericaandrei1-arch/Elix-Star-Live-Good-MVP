@@ -11,13 +11,13 @@ static_sites:
     envs:
       - key: VITE_SUPABASE_URL
         scope: BUILD_TIME
-        value: REPLACE_ME
+        value: ${VITE_SUPABASE_URL}
       - key: VITE_SUPABASE_ANON_KEY
         scope: BUILD_TIME
-        value: REPLACE_ME
+        value: ${VITE_SUPABASE_ANON_KEY}
       - key: VITE_GIFT_ASSET_BASE_URL
         scope: BUILD_TIME
-        value: REPLACE_ME
+        value: ${VITE_GIFT_ASSET_BASE_URL}
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         scope: BUILD_TIME
-        value: REPLACE_ME
+        value: ${VITE_STRIPE_PUBLISHABLE_KEY}
