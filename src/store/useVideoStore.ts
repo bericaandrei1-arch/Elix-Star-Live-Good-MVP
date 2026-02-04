@@ -100,7 +100,47 @@ interface VideoStore {
 export const useVideoStore = create<VideoStore>()(
   persist(
     (set, get) => ({
-      videos: [],
+      videos: [
+        {
+          id: 'cartoon1',
+          url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          thumbnail: 'https://picsum.photos/400/600?random=1',
+          duration: '9:56',
+          user: {
+            id: 'user1',
+            username: 'cartoon_fan',
+            name: 'Cartoon Fan',
+            avatar: 'https://i.pravatar.cc/150?u=cartoon1',
+            level: 15,
+            isVerified: true,
+            followers: 50000,
+            following: 200
+          },
+          description: 'Big Buck Bunny - Animated Short Film 🐰',
+          hashtags: ['cartoon', 'animated', 'funny'],
+          music: {
+            id: 'original',
+            title: 'Original Sound',
+            artist: 'Creator',
+            duration: '9:56'
+          },
+          stats: {
+            views: 10000,
+            likes: 850,
+            comments: 45,
+            shares: 120,
+            saves: 200
+          },
+          createdAt: '2026-02-01T10:00:00Z',
+          location: 'For You',
+          isLiked: false,
+          isSaved: false,
+          isFollowing: false,
+          comments: [],
+          quality: '1080p',
+          privacy: 'public'
+        }
+      ],
       likedVideos: [],
       savedVideos: [],
       followingUsers: [],
@@ -343,7 +383,7 @@ export const useVideoStore = create<VideoStore>()(
       }
     }),
     {
-      name: 'video-store-v2',
+      name: 'video-store-v3',
       partialize: (state) => ({
         likedVideos: state.likedVideos,
         savedVideos: state.savedVideos,
