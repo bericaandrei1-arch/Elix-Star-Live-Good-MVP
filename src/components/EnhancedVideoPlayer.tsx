@@ -375,7 +375,8 @@ export default function EnhancedVideoPlayer({
       className="relative w-full h-full snap-start overflow-hidden border-b border-gray-800 flex justify-center"
     >
       {/* Video Element - iPhone 14 Pro Max aspect ratio (1290×2796, 19.5:9) */}
-      <div className="absolute top-20 right-0 bottom-0 left-0 w-full max-w-[500px] mx-auto" style={{ aspectRatio: '1290/2796' }}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-full max-w-[500px] h-full" style={{ aspectRatio: '1290/2796' }}>
         <audio ref={audioRef} preload="auto" className="hidden" />
         <video
           ref={videoRef}
@@ -420,6 +421,7 @@ export default function EnhancedVideoPlayer({
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Right Sidebar - Premium Metallic Icon Buttons */}
