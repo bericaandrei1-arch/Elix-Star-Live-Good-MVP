@@ -103,16 +103,16 @@ export default function CommentsModal({ isOpen, onClose, videoId, comments }: Co
   });
 
   return (
-    <div className="fixed inset-0 z-[400] bg-black/50 backdrop-blur-sm flex items-end">
-      <div className="w-full h-[80vh] bg-[#121212] rounded-t-2xl flex flex-col border-t border-white/10 animate-slide-up" style={{animation: 'slide-up 0.3s ease-out'}}>
+    <div className="fixed inset-0 z-[400] bg-black flex items-end">
+      <div className="w-full h-[80vh] bg-[#121212] rounded-t-2xl flex flex-col border-t border-transparent animate-slide-up" style={{animation: 'slide-up 0.3s ease-out'}}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-transparent">
           <div className="flex items-center gap-3">
             <h3 className="text-white font-semibold">{comments.length} comments</h3>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'mostLiked')}
-              className="bg-white/10 text-white text-xs rounded px-2 py-1 border-none outline-none"
+              className="bg-black text-white text-xs rounded px-2 py-1 border-none outline-none"
             >
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
@@ -151,7 +151,7 @@ export default function CommentsModal({ isOpen, onClose, videoId, comments }: Co
                       <textarea
                         value={editText}
                         onChange={(e) => setEditText(e.target.value)}
-                        className="w-full bg-white/10 text-white text-sm rounded p-2 resize-none border-none outline-none"
+                        className="w-full bg-black text-white text-sm rounded p-2 resize-none border-none outline-none"
                         rows={2}
                         autoFocus
                       />
@@ -164,7 +164,7 @@ export default function CommentsModal({ isOpen, onClose, videoId, comments }: Co
                         </button>
                         <button
                           onClick={() => setEditingComment(null)}
-                          className="px-3 py-1 bg-white/20 text-white text-xs rounded hover:bg-white/30"
+                          className="px-3 py-1 bg-white text-white text-xs rounded hover:bg-black"
                         >
                           Cancel
                         </button>
@@ -239,7 +239,7 @@ export default function CommentsModal({ isOpen, onClose, videoId, comments }: Co
         </div>
 
         {/* Input Area */}
-        <div className="p-4 border-t border-white/10 flex items-start gap-3 bg-[#121212]">
+        <div className="p-4 border-t border-transparent flex items-start gap-3 bg-[#121212]">
           <img 
             src={user?.avatar || 'https://i.pravatar.cc/150?img=current'} 
             alt={user?.username || 'You'} 
@@ -250,7 +250,7 @@ export default function CommentsModal({ isOpen, onClose, videoId, comments }: Co
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder={replyingTo ? "Write a reply..." : "Add a comment..."}
-              className="w-full bg-white/10 text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-white/20 resize-none"
+              className="w-full bg-black text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-white resize-none"
               rows={2}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {

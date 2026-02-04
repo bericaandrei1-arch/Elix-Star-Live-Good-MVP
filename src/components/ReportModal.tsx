@@ -140,7 +140,7 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
 
   if (showSuccess) {
     return (
-      <div className="fixed inset-0 z-[600] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[600] bg-black flex items-center justify-center p-4">
         <div className="bg-[#121212] rounded-2xl p-6 max-w-sm w-full text-center">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -159,7 +159,7 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
   }
 
   return (
-    <div className="fixed inset-0 z-[600] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[600] bg-black flex items-center justify-center p-4">
       <div className="bg-[#121212] rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -192,11 +192,11 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
                   className={`w-full text-left p-4 rounded-lg border transition-all ${
                     selectedReason === reason.id
                       ? 'border-[#FE2C55] bg-[#FE2C55]/10'
-                      : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                      : 'border-white/10 hover:border-white/20 hover:bg-transparent5'
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg bg-white/10 ${reason.color}`}>
+                    <div className={`p-2 rounded-lg bg-transparent10 ${reason.color}`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -229,7 +229,7 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
               value={additionalDetails}
               onChange={(e) => setAdditionalDetails(e.target.value)}
               placeholder="Provide more context about why you're reporting this content..."
-              className="w-full bg-white/10 text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-white/20 resize-none"
+              className="w-full bg-transparent10 text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-transparent20 resize-none"
               rows={4}
               maxLength={500}
             />
@@ -239,7 +239,7 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
           </div>
 
           {/* Privacy Notice */}
-          <div className="bg-white/5 rounded-lg p-4 mb-6">
+          <div className="bg-transparent5 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
               <div className="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <div className="w-2 h-2 bg-blue-500 rounded-full" />
@@ -259,7 +259,7 @@ export default function ReportModal({ isOpen, onClose, videoId, contentType, con
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+              className="flex-1 px-4 py-2 bg-transparent10 text-white rounded-lg hover:bg-transparent20 transition-colors"
             >
               Cancel
             </button>

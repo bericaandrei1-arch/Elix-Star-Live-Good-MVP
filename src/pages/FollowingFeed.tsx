@@ -1,54 +1,130 @@
-import React from 'react';
-import { ArrowLeft, UserPlus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, UserPlus, Radio } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { trackEvent, trackScreenView } from '../lib/analytics';
+import EnhancedVideoPlayer from '../components/EnhancedVideoPlayer';
 
-const FOLLOWING_VIDEOS = [
-  { id: 1, url: '/gifts/Crystal Voyager Ship.mp4' },
-  { id: 2, url: '/gifts/Earth Titan Gorilla.mp4' },
-  { id: 3, url: '/gifts/Fantasy Unicorn.mp4' },
-];
+interface Video {
+  id: string;
+  video_url: string;
+  thumbnail_url: string;
+  description: string;
+  user_id: string;
+  creator?: { username: string; avatar_url: string | null; is_live: boolean };
+}
 
 export default function FollowingFeed() {
   const navigate = useNavigate();
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+
+  useEffect(() => {
+    loadCurrentUser();
+    trackScreenView('following_feed');
+  }, []);
+
+  useEffect(() => {
+    if (currentUserId) {
+      loadFollowingVideos();
+    }
+  }, [currentUserId]);
+
+  const loadCurrentUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    setCurrentUserId(data.user?.id || null);
+  };
+
+  const loadFollowingVideos = async () => {
+    if (!currentUserId) return;
+
+    setLoading(true);
+    try {
+      // Get users the current user is following
+      const { data: following } = await supabase
+        .from('followers')
+        .select('following_id')
+        .eq('follower_id', currentUserId);
+
+      const followingIds = following?.map(f => f.following_id) || [];
+
+      if (followingIds.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      // Get videos from followed users
+      const { data: videosData, error } = await supabase
+        .from('videos')
+        .select('*, creator:profiles!user_id(username, avatar_url, is_live)')
+        .in('user_id', followingIds)
+        .eq('is_private', false)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setVideos(videosData || []);
+    } catch (error) {
+      console.error('Failed to load following videos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white flex justify-center">
-      <div className="w-full max-w-[500px]">
-        <div className="p-4 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-1">
+    <div className="h-screen bg-black text-white overflow-y-scroll snap-y snap-mandatory">
+      {/* Header */}
+      <div className="fixed top-0 left-0 right-0 z-20 bg-black">
+        <div className="flex items-center justify-between px-4 py-4">
+          <button onClick={() => navigate(-1)} className="p-2 hover:brightness-125 rounded-full transition">
             <ArrowLeft size={24} />
           </button>
           <h1 className="text-lg font-bold">Following</h1>
+          <div className="w-10"></div>
         </div>
+      </div>
 
       {/* Content */}
-      {FOLLOWING_VIDEOS.length > 0 ? (
-        <div className="grid grid-cols-1 gap-1">
-          {FOLLOWING_VIDEOS.map((video) => (
-            <div key={video.id} className="aspect-[9/16] bg-gray-900 relative">
-               <video 
-                 src={video.url} 
-                 className="w-full h-full object-cover" 
-                 muted 
-                 loop 
-                 onMouseOver={e => e.currentTarget.play()} 
-                 onMouseOut={e => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-               />
-               <div className="absolute bottom-4 left-4">
-                 <p className="font-bold">@friend_user</p>
-                 <p className="text-sm opacity-80">Check this out!</p>
-               </div>
-            </div>
-          ))}
+      {loading ? (
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-white/40">Loading...</div>
         </div>
+      ) : videos.length > 0 ? (
+        videos.map((video, index) => (
+          <div key={video.id} className="h-screen snap-start relative">
+            <EnhancedVideoPlayer
+              videoId={video.id}
+              isActive={index === activeVideoIndex}
+              onVideoEnd={() => {}}
+            />
+            
+            {/* Live Indicator (if creator is currently live) */}
+            {video.creator?.is_live && (
+              <button
+                onClick={() => navigate(`/live/${video.user_id}`)}
+                className="absolute top-20 right-4 z-30 flex items-center gap-2 px-3 py-2 bg-red-500 rounded-full animate-pulse"
+              >
+                <Radio className="w-4 h-4" />
+                <span className="text-xs font-bold">LIVE NOW</span>
+              </button>
+            )}
+          </div>
+        ))
       ) : (
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center p-8 opacity-60">
-          <UserPlus size={48} className="mb-4" />
-          <h2 className="text-xl font-bold mb-2">Follow your friends</h2>
-          <p>Videos from people you follow will appear here.</p>
+        <div className="h-screen flex flex-col items-center justify-center text-center px-8">
+          <UserPlus size={48} className="mb-4 text-white/40" />
+          <h2 className="text-xl font-bold mb-2">Follow creators</h2>
+          <p className="text-white/60 mb-6">Videos from people you follow will appear here</p>
+          <button
+            onClick={() => navigate('/discover')}
+            className="px-6 py-3 bg-[#E6B36A] text-black rounded-full font-bold hover:opacity-90 transition"
+          >
+            Discover Creators
+          </button>
         </div>
       )}
-      </div>
     </div>
   );
 }

@@ -1,88 +1,323 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Camera } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { uploadAvatar } from '../lib/avatarUpload';
-import { useAuthStore } from '../store/useAuthStore';
+import { Camera, X, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { trackEvent } from '../lib/analytics';
+
+interface Profile {
+  username: string;
+  display_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  website: string | null;
+  instagram_handle: string | null;
+  youtube_handle: string | null;
+  tiktok_handle: string | null;
+}
 
 export default function EditProfile() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuthStore();
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
-  const displayAvatar = user?.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? 'User')}&background=random`;
+  const [profile, setProfile] = useState<Profile>({
+    username: '',
+    display_name: '',
+    bio: '',
+    avatar_url: '',
+    website: '',
+    instagram_handle: '',
+    youtube_handle: '',
+    tiktok_handle: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const handleAvatarFile = async (file: File | undefined) => {
-    if (!file) return;
-    if (!user) {
-      setAvatarError('You must be logged in to change your avatar.');
-      return;
-    }
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
-    setAvatarError(null);
-    setIsUploadingAvatar(true);
-
+  const loadProfile = async () => {
     try {
-      const publicUrl = await uploadAvatar(file, user.id);
-      const { error } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
-      if (error) throw new Error(error.message);
-      updateUser({ avatar: publicUrl });
-    } catch (e) {
-      setAvatarError(e instanceof Error ? e.message : 'Avatar upload failed.');
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      setCurrentUserId(userData.user.id);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userData.user.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setProfile({
+          username: data.username || '',
+          display_name: data.display_name || '',
+          bio: data.bio || '',
+          avatar_url: data.avatar_url || '',
+          website: data.website || '',
+          instagram_handle: data.instagram_handle || '',
+          youtube_handle: data.youtube_handle || '',
+          tiktok_handle: data.tiktok_handle || '',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUserId) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUserId}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('user-content')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('user-content').getPublicUrl(filePath);
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+      trackEvent('profile_avatar_change', {});
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+      alert('Failed to upload avatar');
     } finally {
-      setIsUploadingAvatar(false);
+      setUploading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!currentUserId) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: profile.display_name,
+          bio: profile.bio,
+          avatar_url: profile.avatar_url,
+          website: profile.website,
+          instagram_handle: profile.instagram_handle,
+          youtube_handle: profile.youtube_handle,
+          tiktok_handle: profile.tiktok_handle,
+        })
+        .eq('user_id', currentUserId);
+
+      if (error) throw error;
+
+      trackEvent('profile_update', {});
+      navigate(-1); // Go back
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      alert('Failed to save profile');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 flex justify-center">
-      <div className="w-full max-w-[500px]">
-        <header className="flex items-center justify-between mb-8">
-            <button onClick={() => navigate(-1)}><ArrowLeft size={24} /></button>
-            <h1 className="font-bold text-lg">Edit profile</h1>
-            <button className="text-gray-400">Save</button>
-        </header>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="sticky top-0 z-10 px-4 py-4 flex items-center justify-between">
+        <button onClick={() => navigate(-1)} className="p-2 hover:brightness-125 rounded-full transition">
+          <X className="w-6 h-6" />
+        </button>
+        <h1 className="text-lg font-bold">Edit Profile</h1>
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="px-4 py-2 bg-[#E6B36A] text-black rounded-full font-semibold disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Save'}
+        </button>
+      </div>
 
-        <div className="flex flex-col items-center mb-8">
-            <div className="relative">
-                <div className="w-24 h-24 bg-gray-700 rounded-full overflow-hidden opacity-70 cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
-                    <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <Camera size={24} />
-                </div>
-                <input 
-                  type="file" 
-                  id="avatar-upload" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => handleAvatarFile(e.target.files?.[0])} 
-                />
-            </div>
-            <p className="text-sm mt-2 text-gray-300">Change photo</p>
-            {isUploadingAvatar && <div className="text-xs text-white/70 mt-1">Uploading...</div>}
-            {avatarError && <div className="text-xs text-rose-300 mt-1">{avatarError}</div>}
+      <div className="px-4 py-6 space-y-6">
+        {/* Avatar */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <img
+              src={profile.avatar_url || `https://ui-avatars.com/api/?name=${profile.username}`}
+              alt="Avatar"
+              className="w-24 h-24 object-cover"
+            />
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-0 right-0 w-8 h-8 bg-[#E6B36A] rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition"
+            >
+              <Camera className="w-4 h-4 text-black" />
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+          {uploading && <p className="text-sm text-white/60">Uploading...</p>}
+          <p className="text-sm text-white/60">@{profile.username}</p>
         </div>
 
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <label className="w-1/4 text-sm text-gray-300">Name</label>
-                <input type="text" defaultValue="User Name" className="w-3/4 bg-transparent border-b border-gray-700 focus:border-white outline-none py-1" />
-            </div>
-            <div className="flex justify-between items-center">
-                <label className="w-1/4 text-sm text-gray-300">Username</label>
-                <input type="text" defaultValue="username" className="w-3/4 bg-transparent border-b border-gray-700 focus:border-white outline-none py-1" />
-            </div>
-            <div className="flex justify-between items-center">
-                <label className="w-1/4 text-sm text-gray-300">Bio</label>
-                <textarea defaultValue="Welcome to my profile! 🎥" className="w-3/4 bg-transparent border-b border-gray-700 focus:border-white outline-none py-1 resize-none h-20" />
-            </div>
-             <div className="flex justify-between items-center">
-                <label className="w-1/4 text-sm text-gray-300">Website</label>
-                <input type="text" defaultValue="linktr.ee/username" className="w-3/4 bg-transparent border-b border-gray-700 focus:border-white outline-none py-1" />
-            </div>
+        {/* Form Fields */}
+        <div className="space-y-4">
+          <InputField
+            label="Display Name"
+            value={profile.display_name || ''}
+            onChange={val => setProfile(prev => ({ ...prev, display_name: val }))}
+            placeholder="Your display name"
+            maxLength={50}
+          />
+
+          <TextAreaField
+            label="Bio"
+            value={profile.bio || ''}
+            onChange={val => setProfile(prev => ({ ...prev, bio: val }))}
+            placeholder="Tell us about yourself..."
+            maxLength={150}
+          />
+
+          <InputField
+            label="Website"
+            value={profile.website || ''}
+            onChange={val => setProfile(prev => ({ ...prev, website: val }))}
+            placeholder="https://yoursite.com"
+            maxLength={100}
+          />
+
+          <Divider label="Social Links" />
+
+          <InputField
+            label="Instagram"
+            value={profile.instagram_handle || ''}
+            onChange={val => setProfile(prev => ({ ...prev, instagram_handle: val }))}
+            placeholder="@username"
+            maxLength={50}
+          />
+
+          <InputField
+            label="YouTube"
+            value={profile.youtube_handle || ''}
+            onChange={val => setProfile(prev => ({ ...prev, youtube_handle: val }))}
+            placeholder="@channelname"
+            maxLength={50}
+          />
+
+          <InputField
+            label="TikTok"
+            value={profile.tiktok_handle || ''}
+            onChange={val => setProfile(prev => ({ ...prev, tiktok_handle: val }))}
+            placeholder="@username"
+            maxLength={50}
+          />
         </div>
       </div>
     </div>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  maxLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  maxLength?: number;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-white/80 mb-2">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full bg-black rounded-lg px-4 py-3 outline-none text-white placeholder-white/40 border border-transparent focus:border-[#E6B36A] transition"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  maxLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  maxLength?: number;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-white/80 mb-2">{label}</label>
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        rows={4}
+        className="w-full bg-black rounded-lg px-4 py-3 outline-none text-white placeholder-white/40 border border-transparent focus:border-[#E6B36A] transition resize-none"
+      />
+      {maxLength && (
+        <p className="text-xs text-white/40 mt-1 text-right">
+          {value.length}/{maxLength}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Divider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="flex-1 h-px bg-black"></div>
+      <span className="text-xs text-white/40 font-semibold">{label}</span>
+      <div className="flex-1 h-px bg-black"></div>
+    </div>
+  );
+}
+
+function SettingItem({
+  icon,
+  label,
+  value,
+  onClick,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-4 py-4 hover:brightness-125 transition text-left"
+    >
+      {icon && <div className="text-white/60">{icon}</div>}
+      <span className="flex-1">{label}</span>
+      {value && <span className="text-white/40 text-sm">{value}</span>}
+      <ChevronRight className="w-5 h-5 text-white/40" />
+    </button>
   );
 }

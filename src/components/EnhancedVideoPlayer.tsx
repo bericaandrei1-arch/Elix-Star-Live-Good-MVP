@@ -399,12 +399,12 @@ export default function EnhancedVideoPlayer({
         />
 
         {videoSize && (
-          <div className="absolute top-16 right-4 px-2 py-1 rounded-full bg-black/60 border border-white/10 text-[10px] text-white/80">
+          <div className="absolute top-16 right-4 px-2 py-1 rounded-full text-[10px] text-white/80">
             {videoSize.w}×{videoSize.h}
           </div>
         )}
 
-            <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full bg-black/40 overflow-hidden backdrop-blur-sm border border-white/10 shadow-lg">
+            <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full overflow-hidden shadow-lg">
           <div
             className="h-full bg-gradient-to-r from-[#FFD700] via-[#E6B36A] to-[#FFD700] relative overflow-hidden"
             style={{
@@ -516,7 +516,7 @@ export default function EnhancedVideoPlayer({
 
         {/* Menu Button - SAME SIZE */}
         <button 
-          onClick={() => {}}
+          onClick={handleReport}
           className="w-12 h-12 hover:scale-105 active:scale-95 transition-transform"
           title="More"
         >
@@ -556,7 +556,7 @@ export default function EnhancedVideoPlayer({
 
         {video.location && (
           <div className="flex items-center gap-1 text-white/60 text-xs mb-2">
-            <div className="w-3 h-3 bg-white/60 rounded-full" />
+            <div className="w-3 h-3 rounded-full" />
             <span>{video.location}</span>
           </div>
         )}

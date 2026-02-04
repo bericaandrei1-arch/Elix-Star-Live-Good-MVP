@@ -171,13 +171,13 @@ export function EnhancedGiftPanel({ onSelectGift, userCoins, onRechargeSuccess }
   }, [bigGifts, inView, universeGift, smallGifts, activeTab]);
 
   return (
-    <div ref={panelRef} className="bg-[#1a1a1a]/95 backdrop-blur-xl rounded-t-3xl p-2 pb-3 max-h-[calc(28vh+42px)] overflow-y-auto no-scrollbar border-t-2 border-l-2 border-r-2 border-transparent shadow-2xl animate-slide-up w-full" style={{ borderImage: 'linear-gradient(to right, #8B0000, #00008B) 1' }}>
+    <div ref={panelRef} className="bg-[#1a1a1a]/95  rounded-t-3xl p-2 pb-3 max-h-[calc(28vh+42px)] overflow-y-auto no-scrollbar border-t-2 border-l-2 border-r-2 border-transparent shadow-2xl animate-slide-up w-full" style={{ borderImage: 'linear-gradient(to right, #8B0000, #00008B) 1' }}>
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-secondary font-bold text-base flex items-center gap-2">
           <Gift className="text-secondary" size={18} /> 
           Send a Gift
         </h3>
-        <div className="flex items-center gap-2 bg-black/60 px-2.5 py-0.5 rounded-full border border-secondary/20">
+        <div className="flex items-center gap-2 bg-black px-2.5 py-0.5 rounded-full border border-secondary/20">
           <Coins size={13} className="text-secondary" />
           <span className="text-secondary font-bold text-xs">{userCoins.toLocaleString()}</span>
           {!IS_STORE_BUILD && (
@@ -200,7 +200,7 @@ export function EnhancedGiftPanel({ onSelectGift, userCoins, onRechargeSuccess }
       />
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 mb-3 px-2 border-b border-white/10">
+      <div className="flex items-center gap-6 mb-3 px-2 border-b border-transparent">
         <button 
             className={`text-sm font-bold pb-2 transition-colors relative ${activeTab === 'small' ? 'text-secondary' : 'text-white/50 hover:text-white/80'}`}
             onClick={() => setActiveTab('small')}
@@ -239,11 +239,11 @@ export function EnhancedGiftPanel({ onSelectGift, userCoins, onRechargeSuccess }
                   }}
                   onMouseEnter={() => setActiveGiftId(universeGift.id)}
                   onMouseLeave={() => setActiveGiftId((v) => (v === universeGift.id ? null : v))}
-                  className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/5 border border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
+                  className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:brightness-125 border border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
                 >
                   <div
                     className={[
-                      "w-full aspect-square flex items-center justify-center bg-black/35 rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-white/10",
+                      "w-full aspect-square flex items-center justify-center bg-black rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-transparent",
                       poppedGiftId === universeGift.id ? "elix-gift-pop" : "",
                     ].join(" ")}
                   >
@@ -285,11 +285,11 @@ export function EnhancedGiftPanel({ onSelectGift, userCoins, onRechargeSuccess }
                   }}
                   onMouseEnter={() => setActiveGiftId(gift.id)}
                   onMouseLeave={() => setActiveGiftId((v) => (v === gift.id ? null : v))}
-                  className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/5 border border-transparent hover:border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
+                  className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:brightness-125 border border-transparent hover:border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
                 >
                   <div
                     className={[
-                      "w-full aspect-square flex items-center justify-center bg-black/35 rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-white/10",
+                      "w-full aspect-square flex items-center justify-center bg-black rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-transparent",
                       poppedGiftId === gift.id ? "elix-gift-pop" : "",
                     ].join(" ")}
                   >
@@ -325,11 +325,11 @@ export function EnhancedGiftPanel({ onSelectGift, userCoins, onRechargeSuccess }
                 }}
                 onMouseEnter={() => setActiveGiftId(gift.id)}
                 onMouseLeave={() => setActiveGiftId((v) => (v === gift.id ? null : v))}
-                className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/5 border border-transparent hover:border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
+                className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:brightness-125 border border-transparent hover:border-secondary/30 transition-all duration-300 active:scale-95 relative overflow-hidden"
               >
                 <div
                   className={[
-                    "w-full aspect-square flex items-center justify-center bg-white/5 rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-white/10",
+                    "w-full aspect-square flex items-center justify-center bg-white rounded-2xl shadow-inner group-hover:shadow-secondary/20 transition-all overflow-hidden relative elix-gift-idle border border-transparent",
                     poppedGiftId === gift.id ? "elix-gift-pop" : "",
                   ].join(" ")}
                 >

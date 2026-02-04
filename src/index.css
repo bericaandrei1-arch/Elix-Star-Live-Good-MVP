@@ -249,20 +249,6 @@
   animation: float 3s ease-in-out infinite;
 }
 
-/* Glassmorphism Utility */
-.glass {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-premium {
-  background: linear-gradient(135deg, rgba(230, 179, 106, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(230, 179, 106, 0.2);
-}
 
 /* Diamond Sparkle */
 @keyframes diamond-sparkle {
@@ -278,4 +264,68 @@
 
 .animate-diamond-sparkle {
   animation: diamond-sparkle 2s ease-in-out infinite;
+}
+
+/* New Animations for MVP Features */
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Fade in and out */
+@keyframes fade-in-out {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 4s ease-in-out;
+}
+
+/* Slow bounce */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s infinite;
+}
+
+/* Slide down from top */
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

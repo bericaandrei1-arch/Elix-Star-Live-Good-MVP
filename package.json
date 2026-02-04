@@ -15,6 +15,7 @@
     "preview": "vite preview",
     "check": "tsc -b --noEmit",
     "test": "vitest run",
+    "ws:server": "tsx server/websocket-server.ts",
     "cap:sync": "npm run build && npx cap sync",
     "cap:add:android": "npx cap add android",
     "cap:add:ios": "npx cap add ios",
@@ -26,9 +27,13 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/clipboard": "^8.0.0",
     "@capacitor/core": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
     "@capacitor/preferences": "^8.0.0",
+    "@capacitor/push-notifications": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@mediapipe/camera_utils": "^0.3.1675466862",
@@ -42,6 +47,7 @@
     "agora-rtc-sdk-ng": "^4.24.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.29.0",
     "lucide-react": "^0.511.0",
     "opentok": "^2.23.1",
@@ -53,6 +59,8 @@
     "socket.io-client": "^4.8.3",
     "stripe": "^20.3.0",
     "tailwind-merge": "^3.4.0",
+    "tsx": "^4.21.0",
+    "ws": "^8.19.0",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

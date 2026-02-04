@@ -164,7 +164,7 @@ export default function CreatorLoginDetails() {
               className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition ${
                 mode === 'signin'
                   ? 'bg-[#E6B36A] text-black border-[#E6B36A]'
-                  : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                  : 'bg-transparent5 text-white border-white/10 hover:bg-transparent10'
               }`}
             >
               Sign in
@@ -180,7 +180,7 @@ export default function CreatorLoginDetails() {
               className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition ${
                 mode === 'signup'
                   ? 'bg-[#E6B36A] text-black border-[#E6B36A]'
-                  : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                  : 'bg-transparent5 text-white border-white/10 hover:bg-transparent10'
               }`}
             >
               Create account
@@ -198,7 +198,7 @@ export default function CreatorLoginDetails() {
                   <input
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
+                    className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
                     placeholder="creator_name"
                     autoComplete="username"
                   />
@@ -214,7 +214,7 @@ export default function CreatorLoginDetails() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
+                  className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
                   placeholder="you@email.com"
                   autoComplete="email"
                   required
@@ -230,7 +230,7 @@ export default function CreatorLoginDetails() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
+                  className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
                   placeholder="••••••••"
                   autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                   required
@@ -254,7 +254,7 @@ export default function CreatorLoginDetails() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
+                    className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
                     placeholder="••••••••"
                     autoComplete="new-password"
                     required
@@ -277,7 +277,7 @@ export default function CreatorLoginDetails() {
               <button
                 type="button"
                 disabled={isResending}
-                className="w-full bg-white/10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
+                className="w-full bg-transparent10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
                 onClick={onResend}
               >
                 {isResending ? 'Sending...' : 'Resend confirmation email'}
@@ -305,7 +305,7 @@ export default function CreatorLoginDetails() {
         )}
 
         <div className="space-y-4">
-          <label className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+          <label className="flex items-center justify-between p-4 bg-transparent5 border border-white/10 rounded-xl">
             <span className="text-sm">Remember me</span>
             <input
               type="checkbox"
@@ -318,7 +318,7 @@ export default function CreatorLoginDetails() {
             />
           </label>
 
-          <label className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+          <label className="flex items-center justify-between p-4 bg-transparent5 border border-white/10 rounded-xl">
             <span className="text-sm">Save login details (email/username)</span>
             <input
               type="checkbox"
@@ -337,7 +337,7 @@ export default function CreatorLoginDetails() {
             />
           </label>
 
-          <label className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+          <label className="flex items-center justify-between p-4 bg-transparent5 border border-white/10 rounded-xl">
             <span className="text-sm">Save password</span>
             <input
               type="checkbox"
@@ -354,7 +354,7 @@ export default function CreatorLoginDetails() {
             />
           </label>
 
-          <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+          <div className="p-4 bg-transparent5 border border-white/10 rounded-xl">
             <div className="text-xs text-white/60">Saved email</div>
             <div className="text-sm break-all">{savedIdentifier || '-'}</div>
             <div className="mt-3 text-xs text-white/60">Saved username</div>
@@ -363,7 +363,7 @@ export default function CreatorLoginDetails() {
             <div className="text-sm break-all">{savedPassword ? '••••••••' : '-'}</div>
 
             <button
-              className="mt-4 w-full bg-white/10 border border-white/10 rounded-xl py-2 text-sm"
+              className="mt-4 w-full bg-transparent10 border border-white/10 rounded-xl py-2 text-sm"
               onClick={() => {
                 window.localStorage.removeItem('creator_saved_identifier');
                 window.localStorage.removeItem('creator_saved_username');
@@ -397,7 +397,7 @@ export default function CreatorLoginDetails() {
 
           {user && (
             <button
-              className="w-full bg-white/10 border border-white/10 rounded-xl py-2 text-sm"
+              className="w-full bg-transparent10 border border-white/10 rounded-xl py-2 text-sm"
               onClick={async () => {
                 await signOut();
                 setPassword('');

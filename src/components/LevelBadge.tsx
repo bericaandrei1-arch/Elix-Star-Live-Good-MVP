@@ -21,9 +21,9 @@ export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, className = "", s
         ? { bg: '#166534', border: '#22c55e' } // Green 800 bg, Green 500 border
         : tier === 'orange'
           ? { bg: '#9a3412', border: '#f97316' } // Orange 800 bg, Orange 500 border
-          : tier === 'purple'
-            ? { bg: '#6b21a8', border: '#a855f7' } // Purple 800 bg, Purple 500 border
-            : { bg: '#9d174d', border: '#ec4899' }; // Pink 800 bg, Pink 500 border
+          : tier === 'pink'
+            ? { bg: '#db2777', border: '#ec4899' } // Pink 700 bg, Pink 500 border
+            : { bg: '#9d174d', border: '#ec4899' }; // Red (default)
 
   // size=10 is used in chat. We are bumping it up significantly as requested.
   // ~4mm is approx 15px. User asked for +4mm height/width relative to original small size.

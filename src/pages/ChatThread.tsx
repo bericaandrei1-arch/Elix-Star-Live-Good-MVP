@@ -51,7 +51,7 @@ export default function ChatThread() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-6 border ${
                   m.from === 'me'
                     ? 'bg-[#E6B36A] text-black border-[#E6B36A]'
-                    : 'bg-white/5 text-white border-white/10'
+                    : 'bg-transparent text-white border-transparent'
                 }`}
               >
                 {m.text}
@@ -73,7 +73,7 @@ export default function ChatThread() {
             setDraft('');
           }}
         >
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-transparent border border-transparent rounded-2xl px-3 py-2">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}

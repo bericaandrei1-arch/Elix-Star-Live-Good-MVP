@@ -38,7 +38,6 @@ export const BottomNav = () => {
             className="absolute left-1/2 top-[-1%] -translate-x-1/2 w-[20%] hover:scale-110 active:scale-95 transition-all duration-300 pointer-events-auto"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#E6B36A]/40 to-transparent rounded-full blur-xl animate-premium-glow" />
               <img src="/nav-icons/plus.png" alt="Create" className="w-full h-auto relative z-10" draggable={false} />
             </div>
           </button>

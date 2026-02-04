@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { Heart } from 'lucide-react';
 import { LevelBadge } from './LevelBadge';
 
 interface Message {
@@ -119,24 +118,6 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
             <span style={usernameStyle}>{msg.username}</span>
             <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
             <span style={textStyle(msg.isGift)}>{msg.text}</span>
-
-            {onLike && !msg.isSystem && (
-              <button
-                onClick={onLike}
-                type="button"
-                style={{
-                  marginLeft: 'auto',
-                  padding: '4px',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'rgba(255,255,255,0.4)',
-                  flexShrink: 0,
-                }}
-              >
-                <Heart size={14} />
-              </button>
-            )}
           </div>
         ))}
         <div ref={bottomRef} />

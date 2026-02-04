@@ -183,10 +183,10 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
   });
 
   return (
-    <div className="fixed inset-0 z-[500] bg-black/50 backdrop-blur-sm flex items-end">
-      <div className="w-full h-[80vh] bg-[#121212] rounded-t-2xl flex flex-col border-t border-white/10" style={{animation: 'slide-up 0.3s ease-out'}}>
+    <div className="fixed inset-0 z-[500] bg-black flex items-end">
+      <div className="w-full h-[80vh] bg-[#121212] rounded-t-2xl flex flex-col border-t border-transparent" style={{animation: 'slide-up 0.3s ease-out'}}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-transparent">
           <div>
             <h3 className="text-white font-semibold">Liked by</h3>
             <p className="text-white/60 text-sm">{likes.toLocaleString()} likes</p>
@@ -197,14 +197,14 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
         </div>
 
         {/* Search and Filter */}
-        <div className="p-4 border-b border-white/10 space-y-3">
+        <div className="p-4 border-b border-transparent space-y-3">
           <div className="relative">
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/10 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:bg-white/20 border-none"
+              className="w-full bg-black text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:bg-white border-none"
             />
             {searchTerm && (
               <button
@@ -224,7 +224,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                 className={`px-3 py-1 rounded-full text-sm transition-colors ${
                   filter === filterType
                     ? 'bg-[#FE2C55] text-white'
-                    : 'bg-white/10 text-white/80 hover:bg-white/20'
+                    : 'bg-black text-white/80 hover:brightness-125'
                 }`}
               >
                 {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
@@ -237,7 +237,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
         <div className="flex-1 overflow-y-auto">
           {filteredLikes.length === 0 ? (
             <div className="text-center py-8">
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mx-auto mb-3">
                 <UserPlus className="w-6 h-6 text-white/60" />
               </div>
               <p className="text-white/60">No users found</p>
@@ -246,7 +246,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
           ) : (
             <div className="divide-y divide-white/10">
               {filteredLikes.map((user) => (
-                <div key={user.id} className="p-4 hover:bg-white/5 transition-colors group">
+                <div key={user.id} className="p-4 hover:bg-transparent transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="relative flex-shrink-0">
                       <img
@@ -285,7 +285,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                           {user.isFollowing ? (
                             <button
                               onClick={() => handleFollowToggle(user.id)}
-                              className="px-3 py-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-sm"
+                              className="px-3 py-1.5 bg-black text-white rounded-lg hover:brightness-125 transition-colors text-sm"
                             >
                               <UserMinus size={14} className="inline mr-1" />
                               Following
@@ -302,7 +302,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                           
                           <button
                             onClick={() => handleMessage(user)}
-                            className="p-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                            className="p-2 bg-black text-white rounded-lg hover:brightness-125 transition-colors"
                           >
                             <MessageCircle size={14} />
                           </button>
@@ -318,10 +318,10 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                         </button>
                         
                         {showUserOptions === user.id && (
-                          <div className="absolute top-full right-0 mt-1 bg-[#1a1a1a] rounded-lg shadow-xl border border-white/10 z-10 min-w-[160px]">
+                          <div className="absolute top-full right-0 mt-1 bg-[#1a1a1a] rounded-lg shadow-xl border border-transparent z-10 min-w-[160px]">
                             <button
                               onClick={() => handleMessage(user)}
-                              className="w-full flex items-center gap-3 px-3 py-2 text-white hover:bg-white/5 transition-colors text-left text-sm"
+                              className="w-full flex items-center gap-3 px-3 py-2 text-white hover:bg-transparent transition-colors text-left text-sm"
                             >
                               <MessageCircle size={14} />
                               <span>Message</span>
@@ -329,7 +329,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                             
                             <button
                               onClick={() => handleReportUser(user)}
-                              className="w-full flex items-center gap-3 px-3 py-2 text-orange-400 hover:bg-white/5 transition-colors text-left text-sm"
+                              className="w-full flex items-center gap-3 px-3 py-2 text-orange-400 hover:bg-transparent transition-colors text-left text-sm"
                             >
                               <Flag size={14} />
                               <span>Report</span>
@@ -337,7 +337,7 @@ export default function EnhancedLikesModal({ isOpen, onClose, likes }: LikesModa
                             
                             <button
                               onClick={() => handleBlockUser(user)}
-                              className="w-full flex items-center gap-3 px-3 py-2 text-red-400 hover:bg-white/5 transition-colors text-left text-sm"
+                              className="w-full flex items-center gap-3 px-3 py-2 text-red-400 hover:bg-transparent transition-colors text-left text-sm"
                             >
                               <div className="w-3 h-3 bg-red-400 rounded-full" />
                               <span>Block</span>

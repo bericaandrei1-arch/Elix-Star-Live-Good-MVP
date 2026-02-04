@@ -41,7 +41,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-background text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-black/60 border border-white/10 rounded-2xl p-5">
+      <div className="w-full max-w-[420px] bg-black60 border border-white/10 rounded-2xl p-5">
         <h1 className="text-xl font-bold mb-4">Register</h1>
 
         <form onSubmit={onSubmit} className="space-y-3">
@@ -50,7 +50,7 @@ export default function Register() {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
+              className="w-full bg-black40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
               placeholder="username"
               autoComplete="username"
             />
@@ -62,7 +62,7 @@ export default function Register() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
+              className="w-full bg-black40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
               placeholder="you@email.com"
               autoComplete="email"
               required
@@ -75,7 +75,7 @@ export default function Register() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
+              className="w-full bg-black40 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-secondary/50"
               placeholder="••••••••"
               autoComplete="new-password"
               required
@@ -89,7 +89,7 @@ export default function Register() {
             <button
               type="button"
               disabled={isResending}
-              className="w-full bg-white/10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
+              className="w-full bg-transparent10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
               onClick={async () => {
                 const trimmed = email.trim();
                 if (!trimmed) {

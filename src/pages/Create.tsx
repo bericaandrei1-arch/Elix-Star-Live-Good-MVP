@@ -94,7 +94,7 @@ function SoundPickerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[500] bg-black/70 backdrop-blur-sm flex items-end justify-center">
+    <div className="fixed inset-0 z-[500] bg-black flex items-end justify-center">
       <div className="w-full max-w-[500px] bg-black border-t border-[#E6B36A]/30 rounded-t-2xl overflow-hidden">
         <audio
           ref={audioRef}
@@ -140,7 +140,7 @@ function SoundPickerModal({
           {sounds.map((s) => (
             <div
               key={s.id}
-              className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+              className="w-full px-4 py-4 flex items-center justify-between hover:brightness-125 transition-colors"
             >
               <div className="text-left">
                 <p className="text-white font-medium leading-5">{s.title}</p>
@@ -151,7 +151,7 @@ function SoundPickerModal({
                 <button
                   type="button"
                   onClick={() => togglePreview(s)}
-                  className="w-10 h-10 rounded-full border border-[#E6B36A]/25 bg-black/50 flex items-center justify-center"
+                  className="w-10 h-10 rounded-full border border-[#E6B36A]/25 bg-black flex items-center justify-center"
                 >
                   {playingId === String(s.id) ? (
                     <Pause className="w-5 h-5 text-[#E6B36A]" strokeWidth={2} />
@@ -202,7 +202,7 @@ function ToolbarButton({
     <button
       onClick={onClick}
       className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95 ${
-        active ? 'bg-white/5' : ''
+        active ? 'bg-white' : ''
       }`}
     >
       <Icon className="w-6 h-6 text-[#E6B36A]" strokeWidth={2} />
@@ -602,7 +602,7 @@ export default function Create() {
           <div className="absolute right-4 bottom-[132px] z-[25]">
             <button
               onClick={togglePreviewPlayback}
-              className="w-11 h-11 rounded-full border border-[#E6B36A]/35 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-[#E6B36A]/35 bg-black flex items-center justify-center"
             >
               {isPreviewPlaying ? (
                 <Square className="w-5 h-5 text-[#E6B36A]" strokeWidth={2} />
@@ -616,7 +616,7 @@ export default function Create() {
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[20]">
           <button
             onClick={() => setIsSoundOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/60 border border-[#E6B36A]/35 backdrop-blur-sm"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-black border border-[#E6B36A]/35"
           >
             <Music className="w-5 h-5 text-[#E6B36A]" strokeWidth={2} />
             <span className="text-[#E6B36A] font-semibold">{sound ? `${sound.title}` : 'Add sound (no copyright)'}</span>
@@ -635,8 +635,8 @@ export default function Create() {
         </div>
 
         {countdownSeconds !== null && (
-          <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black/40">
-            <div className="w-24 h-24 rounded-full bg-black/70 border border-[#E6B36A]/35 flex items-center justify-center">
+          <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black">
+            <div className="w-24 h-24 rounded-full bg-black border border-[#E6B36A]/35 flex items-center justify-center">
               <div className="text-4xl font-black text-[#E6B36A]">{countdownSeconds}</div>
             </div>
           </div>
@@ -644,7 +644,7 @@ export default function Create() {
 
         {toast && (
           <div className="absolute left-0 right-0 top-20 z-[90] flex justify-center px-4">
-            <div className="px-4 py-2 rounded-full bg-black/70 border border-white/10 text-sm text-white/80">
+            <div className="px-4 py-2 rounded-full bg-black border border-transparent text-sm text-white/80">
               {toast}
             </div>
           </div>
@@ -653,7 +653,7 @@ export default function Create() {
         <div className="absolute left-4 bottom-[96px] z-[20]">
           <button
             onClick={openUploadPicker}
-            className="w-10 h-10 rounded-lg border border-[#E6B36A]/35 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+            className="w-10 h-10 rounded-lg border border-[#E6B36A]/35 bg-black flex items-center justify-center"
           >
             <ImageIcon className="w-5 h-5 text-[#E6B36A]" strokeWidth={2} />
           </button>

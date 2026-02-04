@@ -12,6 +12,9 @@ import Create from './pages/Create';
 import { BottomNav } from './components/BottomNav';
 import { useAuthStore } from './store/useAuthStore';
 import { cn } from './lib/utils';
+import { useDeepLinks } from './lib/deepLinks';
+import { analytics } from './lib/analytics';
+import { notificationService } from './lib/notifications';
 
 import SavedVideos from './pages/SavedVideos';
 import MusicFeed from './pages/MusicFeed';
@@ -36,15 +39,45 @@ import LegalDMCA from './pages/LegalDMCA';
 import LegalSafety from './pages/LegalSafety';
 import RequireAuth from './components/RequireAuth';
 import DesignSystem from './pages/DesignSystem';
+import Discover from './pages/Discover';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminReports from './pages/admin/Reports';
+import AdminEconomy from './pages/admin/Economy';
+import Hashtag from './pages/Hashtag';
+import BlockedAccounts from './pages/settings/BlockedAccounts';
+import SafetyCenter from './pages/settings/SafetyCenter';
+import PurchaseCoins from './pages/PurchaseCoins';
+import Report from './pages/Report';
+import Support from './pages/Support';
+import Guidelines from './pages/Guidelines';
 
 function App() {
-  const { checkUser } = useAuthStore();
+  const { checkUser, user } = useAuthStore();
   const location = useLocation();
   const isDev = import.meta.env.DEV;
 
+  // Initialize deep links
+  useDeepLinks();
+
   useEffect(() => {
     checkUser();
+    
+    // Initialize analytics
+    analytics.initialize();
+    
+    // Initialize push notifications
+    notificationService.initialize();
   }, [checkUser]);
+
+  useEffect(() => {
+    // Set analytics user ID when user logs in
+    if (user?.id) {
+      analytics.setUserId(user.id);
+    } else {
+      analytics.setUserId(null);
+    }
+  }, [user]);
 
   const isFullScreen =
     location.pathname === '/' ||
@@ -64,6 +97,10 @@ function App() {
           {isDev && <Route path="/design" element={<DesignSystem />} />}
           <Route path="/following" element={<FollowingFeed />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/hashtag/:tag" element={<Hashtag />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/support" element={<Support />} />
           <Route path="/video/:videoId" element={<VideoView />} />
           <Route path="/live" element={<LiveDiscover />} />
           <Route path="/live/:streamId" element={<LiveStream />} />
@@ -90,11 +127,19 @@ function App() {
           <Route path="/legal/affiliate" element={<LegalAffiliate />} />
           <Route path="/legal/dmca" element={<LegalDMCA />} />
           <Route path="/legal/safety" element={<LegalSafety />} />
+          <Route path="/guidelines" element={<Guidelines />} />
 
           <Route element={<RequireAuth />}>
             <Route path="/upload" element={<Upload />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/blocked" element={<BlockedAccounts />} />
+            <Route path="/settings/safety" element={<SafetyCenter />} />
+            <Route path="/purchase-coins" element={<PurchaseCoins />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/economy" element={<AdminEconomy />} />
           </Route>
         </Routes>
       </main>

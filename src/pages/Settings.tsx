@@ -1,207 +1,216 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowLeft, Bell, BellOff, Globe, LogOut, Scale, Trash2, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import {
+  ChevronRight,
+  User,
+  Lock,
+  Bell,
+  Shield,
+  HelpCircle,
+  LogOut,
+  Moon,
+  Globe,
+  Heart,
+  Video,
+  Ban,
+  Trash2,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
-import { useSettingsStore, type AppLanguage } from '../store/useSettingsStore';
-import { trackEvent } from '../lib/analytics';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { signOut, session } = useAuthStore();
-  const { muteAllSounds, notificationsEnabled, language, setMuteAllSounds, setNotificationsEnabled, setLanguage } =
-    useSettingsStore();
+  const [user, setUser] = useState<any>(null);
 
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  const languageOptions = useMemo(() => {
-    const opts: { value: AppLanguage; label: string }[] = [
-      { value: 'ro', label: 'Română' },
-      { value: 'en', label: 'English' },
-    ];
-    return opts;
+  useEffect(() => {
+    loadUser();
   }, []);
 
+  const loadUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    setUser(data.user);
+  };
+
+  const handleLogout = async () => {
+    if (confirm('Are you sure you want to log out?')) {
+      await supabase.auth.signOut();
+      navigate('/login');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (
+      confirm(
+        'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.'
+      )
+    ) {
+      // Call delete account API
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+
+      if (token) {
+        const response = await fetch('/api/delete-account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          await supabase.auth.signOut();
+          navigate('/login');
+        } else {
+          alert('Failed to delete account. Please contact support.');
+        }
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white p-4 flex justify-center">
-      <div className="w-full max-w-[500px]">
-        <header className="flex items-center justify-between mb-6">
-            <button onClick={() => navigate(-1)}><ArrowLeft size={24} /></button>
-            <h1 className="font-bold text-lg">Settings and privacy</h1>
-            <div className="w-6"></div>
-        </header>
+    <div className="min-h-screen bg-black text-white pb-24">
+      {/* Header */}
+      <div className="sticky top-0 z-10 px-4 py-4">
+        <h1 className="text-2xl font-bold">Settings</h1>
+      </div>
 
-        <div className="space-y-6">
-          <section className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/10">
-              <h2 className="text-sm font-bold text-white/90">Preferences</h2>
-            </div>
-            <div className="divide-y divide-white/10">
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  {muteAllSounds ? <VolumeX size={18} className="text-white/70" /> : <Volume2 size={18} className="text-white/70" />}
-                  <div>
-                    <div className="text-sm font-semibold">Mute all sounds</div>
-                    <div className="text-xs text-white/60">Applies to feed, live and gifts</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className={`w-12 h-7 rounded-full border transition-colors ${
-                    muteAllSounds ? 'bg-[#E6B36A] border-[#E6B36A]' : 'bg-white/10 border-white/10'
-                  }`}
-                  onClick={() => {
-                    const next = !muteAllSounds;
-                    setMuteAllSounds(next);
-                    trackEvent('settings_toggle_mute_all', { value: next });
-                  }}
-                  aria-label="Toggle mute all sounds"
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full bg-black transition-transform ${
-                      muteAllSounds ? 'translate-x-5' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
+      <div className="px-4 py-6 space-y-6">
+        {/* Account Section */}
+        <Section title="Account">
+          <SettingItem
+            icon={<User className="w-5 h-5" />}
+            label="Edit Profile"
+            onClick={() => navigate('/edit-profile')}
+          />
+          <SettingItem
+            icon={<Lock className="w-5 h-5" />}
+            label="Privacy"
+            onClick={() => navigate('/settings/privacy')}
+          />
+          <SettingItem
+            icon={<Shield className="w-5 h-5" />}
+            label="Security"
+            onClick={() => navigate('/settings/security')}
+          />
+        </Section>
 
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  {notificationsEnabled ? <Bell size={18} className="text-white/70" /> : <BellOff size={18} className="text-white/70" />}
-                  <div>
-                    <div className="text-sm font-semibold">Notifications</div>
-                    <div className="text-xs text-white/60">MVP toggle (device push later)</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className={`w-12 h-7 rounded-full border transition-colors ${
-                    notificationsEnabled ? 'bg-[#E6B36A] border-[#E6B36A]' : 'bg-white/10 border-white/10'
-                  }`}
-                  onClick={() => {
-                    const next = !notificationsEnabled;
-                    setNotificationsEnabled(next);
-                    trackEvent('settings_toggle_notifications', { value: next });
-                  }}
-                  aria-label="Toggle notifications"
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full bg-black transition-transform ${
-                      notificationsEnabled ? 'translate-x-5' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
+        {/* Preferences Section */}
+        <Section title="Preferences">
+          <SettingItem
+            icon={<Bell className="w-5 h-5" />}
+            label="Notifications"
+            onClick={() => navigate('/settings/notifications')}
+          />
+          <SettingItem
+            icon={<Moon className="w-5 h-5" />}
+            label="Dark Mode"
+            value="Always On"
+            onClick={() => {}}
+          />
+          <SettingItem
+            icon={<Globe className="w-5 h-5" />}
+            label="Language"
+            value="English"
+            onClick={() => navigate('/settings/language')}
+          />
+        </Section>
 
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <Globe size={18} className="text-white/70" />
-                  <div>
-                    <div className="text-sm font-semibold">Language</div>
-                    <div className="text-xs text-white/60">UI language preference</div>
-                  </div>
-                </div>
-                <select
-                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none"
-                  value={language}
-                  onChange={(e) => {
-                    const next = e.target.value as AppLanguage;
-                    setLanguage(next);
-                    trackEvent('settings_change_language', { value: next });
-                  }}
-                  aria-label="Select language"
-                >
-                  {languageOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </section>
+        {/* Content Section */}
+        <Section title="Content">
+          <SettingItem
+            icon={<Video className="w-5 h-5" />}
+            label="Video Quality"
+            value="Auto"
+            onClick={() => navigate('/settings/video-quality')}
+          />
+          <SettingItem
+            icon={<Heart className="w-5 h-5" />}
+            label="Liked Videos"
+            onClick={() => navigate('/profile/me?tab=liked')}
+          />
+        </Section>
 
-          <section className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/10">
-              <h2 className="text-sm font-bold text-white/90">Legal</h2>
-            </div>
-            <div className="divide-y divide-white/10">
-              <button
-                type="button"
-                className="w-full flex items-center p-4 hover:bg-white/5 cursor-pointer text-left"
-                onClick={() => {
-                  trackEvent('settings_open_legal', { to: '/legal' });
-                  navigate('/legal');
-                }}
-              >
-                <Scale size={18} className="mr-3 text-white/60" />
-                <span className="text-sm font-semibold">Open legal pages</span>
-              </button>
-            </div>
-          </section>
-        </div>
+        {/* Safety Section */}
+        <Section title="Safety & Privacy">
+          <SettingItem
+            icon={<Ban className="w-5 h-5" />}
+            label="Blocked Accounts"
+            onClick={() => navigate('/settings/blocked')}
+          />
+          <SettingItem
+            icon={<Shield className="w-5 h-5" />}
+            label="Safety Center"
+            onClick={() => navigate('/settings/safety')}
+          />
+        </Section>
 
-        <div className="mt-8 space-y-2">
-          {deleteError && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-200">
-              {deleteError}
-            </div>
-          )}
+        {/* Support Section */}
+        <Section title="Support">
+          <SettingItem
+            icon={<HelpCircle className="w-5 h-5" />}
+            label="Help & Support"
+            onClick={() => navigate('/support')}
+          />
+          <SettingItem label="Terms of Service" onClick={() => navigate('/terms')} />
+          <SettingItem label="Privacy Policy" onClick={() => navigate('/privacy')} />
+          <SettingItem label="Community Guidelines" onClick={() => navigate('/guidelines')} />
+        </Section>
+
+        {/* Actions */}
+        <div className="space-y-3 pt-4">
           <button
-            type="button"
-            className="w-full flex items-center p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 cursor-pointer text-left text-red-400 disabled:opacity-60"
-            disabled={isDeleting}
-            onClick={async () => {
-              if (isDeleting) return;
-              const ok = window.confirm('Delete account? This will sign you out and start the deletion request.');
-              if (!ok) return;
-              setIsDeleting(true);
-              setDeleteError(null);
-              trackEvent('settings_delete_account_start');
-              try {
-                if (session?.access_token) {
-                  const resp = await fetch('/api/delete-account', {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${session.access_token}` }
-                  });
-                  if (!resp.ok) {
-                    const body = await resp.json().catch(() => null);
-                    throw new Error(body?.error || 'Failed to delete account.');
-                  }
-                } else {
-                  window.location.href =
-                    'mailto:support@elixstarlive.co.uk?subject=Delete%20my%20account&body=Please%20delete%20my%20account.%20My%20email%3A%20';
-                }
-              } catch (e) {
-                const msg = e instanceof Error ? e.message : 'Failed to delete account.';
-                setDeleteError(msg);
-              }
-              await signOut();
-              trackEvent('settings_delete_account_signed_out');
-              navigate('/login', { replace: true });
-              setIsDeleting(false);
-            }}
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl hover:brightness-125 transition"
           >
-            <Trash2 size={18} className="mr-3" />
-            <span className="text-sm font-bold">Delete account</span>
+            <LogOut className="w-5 h-5" />
+            Log Out
           </button>
-
           <button
-            type="button"
-            className="w-full flex items-center p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 cursor-pointer text-left"
-            onClick={async () => {
-              trackEvent('settings_logout');
-              await signOut();
-              navigate('/login', { replace: true });
-            }}
+            onClick={handleDeleteAccount}
+            className="w-full flex items-center justify-center gap-2 py-4 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition"
           >
-            <LogOut size={18} className="mr-3 text-white/70" />
-            <span className="text-sm font-bold">Log out</span>
+            <Trash2 className="w-5 h-5" />
+            Delete Account
           </button>
         </div>
-        
-        <div className="mt-10 text-center text-xs text-white/40">v1.0.0</div>
+
+        {/* Version */}
+        <div className="text-center text-xs text-white/40 pt-6">Version 1.0.0</div>
       </div>
     </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="text-sm font-semibold text-white/60 mb-3 px-2">{title}</h2>
+      <div className="rounded-xl overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SettingItem({
+  icon,
+  label,
+  value,
+  onClick,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-4 py-4 hover:brightness-125 transition text-left"
+    >
+      {icon && <div className="text-white/60">{icon}</div>}
+      <span className="flex-1">{label}</span>
+      {value && <span className="text-white/40 text-sm">{value}</span>}
+      <ChevronRight className="w-5 h-5 text-white/40" />
+    </button>
   );
 }

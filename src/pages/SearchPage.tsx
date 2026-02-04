@@ -119,7 +119,7 @@ export default function SearchPage() {
                     <button
                       key={u.id}
                       onClick={() => navigate(`/profile/${u.id}`)}
-                      className="w-full flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
+                      className="w-full flex items-center gap-3 p-2 rounded-lg bg-transparent5 hover:bg-transparent10 transition"
                     >
                       <img src={u.avatar} alt={u.username} className="w-10 h-10 rounded-full" />
                       <div className="text-left">
@@ -142,7 +142,7 @@ export default function SearchPage() {
                     <button
                       key={v.id}
                       onClick={() => navigate(`/video/${v.id}`)}
-                      className="w-full flex gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
+                      className="w-full flex gap-3 p-2 rounded-lg bg-transparent5 hover:bg-transparent10 transition"
                     >
                       <img
                         src={v.thumbnail ?? 'https://picsum.photos/120/160'}

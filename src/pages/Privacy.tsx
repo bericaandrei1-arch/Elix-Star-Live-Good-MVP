@@ -31,7 +31,7 @@ export default function Privacy() {
           <button
             type="button"
             onClick={() => navigate('/settings')}
-            className="mt-2 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 text-xs font-bold"
+            className="mt-2 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-transparent border border-transparent hover:brightness-125 text-xs font-bold"
           >
             Open Settings
           </button>

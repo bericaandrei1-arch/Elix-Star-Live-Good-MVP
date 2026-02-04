@@ -36,7 +36,7 @@ export default function FriendsFeed() {
         </div>
 
         <div className="px-4">
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-transparent border border-transparent rounded-2xl px-3 py-2">
             <Search size={18} className="text-white/60" />
             <input
               value={query}
@@ -59,7 +59,7 @@ export default function FriendsFeed() {
             filtered.map((u) => {
               const isFollowing = !!following[u.id];
               return (
-                <div key={u.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3">
+                <div key={u.id} className="flex items-center justify-between bg-transparent border border-transparent rounded-2xl p-3">
                   <button
                     type="button"
                     className="flex items-center gap-3 text-left"
@@ -81,7 +81,7 @@ export default function FriendsFeed() {
                     type="button"
                     className={`px-4 py-2 rounded-xl text-xs font-bold border ${
                       isFollowing
-                        ? 'bg-white/10 border-white/10 text-white/80'
+                        ? 'bg-transparent border-transparent text-white'
                         : 'bg-[#E6B36A] border-[#E6B36A] text-black'
                     }`}
                     onClick={() => setFollowing((prev) => ({ ...prev, [u.id]: !isFollowing }))}

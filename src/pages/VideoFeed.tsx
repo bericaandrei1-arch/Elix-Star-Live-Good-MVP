@@ -39,7 +39,7 @@ function PromoCard({ promo, onOpen }: { promo: LivePromo; onOpen: () => void }) 
         <div className="px-2.5 py-1 rounded-full bg-[#E6B36A] text-black text-[11px] font-black tracking-widest">
           LIVE
         </div>
-        <div className="px-2.5 py-1 rounded-full bg-black/60 border border-[#E6B36A]/30 text-[#E6B36A] text-[11px] font-black tracking-widest">
+        <div className="px-2.5 py-1 rounded-full text-[#E6B36A] text-[11px] font-black tracking-widest">
           {promo.type === 'battle' ? 'BATTLE' : 'STREAM'}
         </div>
       </div>
@@ -162,7 +162,7 @@ export default function VideoFeed() {
               {/* LIVE Button - 11% */}
               <button
                 onClick={() => { setActiveTab('live'); navigate('/live'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5 rounded-l-full"
+                className="h-full transition-all active:opacity-60 hover:brightness-125 rounded-l-full"
                 style={{ width: '11%' }}
                 title="Live"
               />
@@ -170,15 +170,15 @@ export default function VideoFeed() {
               {/* STEM Button - 11% */}
               <button
                 onClick={() => { setActiveTab('stem'); navigate('/stem'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5"
+                className="h-full transition-all active:opacity-60 hover:brightness-125"
                 style={{ width: '11%' }}
                 title="STEM"
               />
               
               {/* Explore Button - 14% */}
               <button
-                onClick={() => { setActiveTab('explore'); navigate('/search'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5"
+                onClick={() => { setActiveTab('explore'); navigate('/discover'); }}
+                className="h-full transition-all active:opacity-60 hover:brightness-125"
                 style={{ width: '14%' }}
                 title="Explore"
               />
@@ -186,7 +186,7 @@ export default function VideoFeed() {
               {/* Following Button - 17% */}
               <button
                 onClick={() => { setActiveTab('following'); navigate('/following'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5"
+                className="h-full transition-all active:opacity-60 hover:brightness-125"
                 style={{ width: '17%' }}
                 title="Following"
               />
@@ -194,7 +194,7 @@ export default function VideoFeed() {
               {/* Shop Button - 12% */}
               <button
                 onClick={() => { setActiveTab('shop'); navigate('/saved'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5"
+                className="h-full transition-all active:opacity-60 hover:brightness-125"
                 style={{ width: '12%' }}
                 title="Shop"
               />
@@ -202,7 +202,7 @@ export default function VideoFeed() {
               {/* For You Button - 17% */}
               <button
                 onClick={() => { setActiveTab('foryou'); navigate('/'); }}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5"
+                className="h-full transition-all active:opacity-60 hover:brightness-125"
                 style={{ width: '17%' }}
                 title="For You"
               />
@@ -210,7 +210,7 @@ export default function VideoFeed() {
               {/* Search Button - 18% */}
               <button
                 onClick={() => navigate('/search')}
-                className="h-full transition-all active:opacity-60 hover:bg-white/5 rounded-r-full"
+                className="h-full transition-all active:opacity-60 hover:brightness-125 rounded-r-full"
                 style={{ width: '18%' }}
                 title="Search"
               />

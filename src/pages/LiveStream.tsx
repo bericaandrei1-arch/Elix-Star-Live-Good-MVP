@@ -1094,8 +1094,7 @@ export default function LiveStream() {
             {battleCountdown != null && (
               <div className="absolute inset-0 z-[260] pointer-events-none flex items-center justify-center">
                 {/* LUXURY BATTLE COUNTDOWN */}
-                <div className="w-32 h-32 rounded-full glass-premium flex items-center justify-center shadow-2xl animate-luxury-pulse relative">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#E6B36A]/30 to-transparent animate-glow-border" />
+                <div className="w-32 h-32 flex items-center justify-center animate-luxury-pulse relative">
                   <div className="text-white text-6xl font-black tabular-nums relative z-10 drop-shadow-[0_0_20px_rgba(230,179,106,1)]">{battleCountdown}</div>
                 </div>
               </div>
@@ -1109,9 +1108,11 @@ export default function LiveStream() {
                   setGiftTarget('me');
                 }}
                 onPointerDown={(e) => {
+                  console.log('Left tap:', e.clientX, e.clientY);
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
+                  addLiveLikes(1);
                 }}
-                className={`w-1/2 h-full overflow-hidden relative border-r border-black/50 bg-black ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
+                className={`w-1/2 h-full overflow-hidden relative border-r border-black bg-black ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
               >
                 <video
                   ref={videoRef}
@@ -1129,7 +1130,9 @@ export default function LiveStream() {
                   setGiftTarget('opponent');
                 }}
                 onPointerDown={(e) => {
+                  console.log('Right tap (chat):', e.clientX, e.clientY, 'Likes:', activeLikes);
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
+                  addLiveLikes(1);
                 }}
                 className={`w-1/2 h-full bg-gray-900 relative overflow-hidden ${giftTarget === 'opponent' ? 'ring-2 ring-[#4A7DFF]' : ''}`}
               >
@@ -1148,7 +1151,7 @@ export default function LiveStream() {
                   e.stopPropagation();
                   toggleBattle();
                 }}
-                className="absolute top-[-14px] left-0 right-0 z-20 w-full h-6 rounded-none overflow-hidden glass-premium shadow-2xl"
+                className="absolute top-[-14px] left-0 right-0 z-20 w-full h-6 rounded-none overflow-hidden  shadow-2xl"
               >
                 {/* LUXURY BATTLE PROGRESS BAR */}
                 <div className="absolute inset-0 flex">
@@ -1159,24 +1162,21 @@ export default function LiveStream() {
                       backgroundImage: 'linear-gradient(90deg, #DC143C, #FF1744, #C41E3A)',
                     }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                   </div>
                   <div
                     className="h-full flex-1 transition-all duration-500 ease-out relative overflow-hidden"
                     style={{ backgroundImage: 'linear-gradient(90deg, #1E90FF, #4169E1, #0047AB)' }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                   </div>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
                 <div className="relative z-10 h-full flex items-center justify-between px-3">
-                  <div className="glass px-2 py-0.5 rounded text-white font-black text-[11px] tabular-nums shadow-lg">
+                  <div className="px-2 py-0.5 text-white font-black text-[11px] tabular-nums">
                     {myScore.toLocaleString()}
                   </div>
-                  <div className="glass-premium px-2.5 py-0.5 rounded-full text-[#E6B36A] text-[10px] font-black tabular-nums shadow-lg">
+                  <div className="px-2.5 py-0.5 text-[#E6B36A] text-[10px] font-black tabular-nums">
                     {formatTime(battleTime)}
                   </div>
-                  <div className="glass px-2 py-0.5 rounded text-white font-black text-[11px] tabular-nums shadow-lg">
+                  <div className="px-2 py-0.5 text-white font-black text-[11px] tabular-nums">
                     {opponentScore.toLocaleString()}
                   </div>
                 </div>
@@ -1187,7 +1187,7 @@ export default function LiveStream() {
                   {/* LUXURY BATTLE WINNER DISPLAY */}
                   {battleWinner === 'draw' ? (
                     <div className="mt-9 flex justify-center">
-                      <div className="glass-premium px-4 py-2 rounded-full shadow-2xl animate-luxury-fade-in">
+                      <div className="px-4 py-2 animate-luxury-fade-in">
                         <div className="text-[#E6B36A] text-sm font-black tracking-widest drop-shadow-[0_0_10px_rgba(230,179,106,0.8)]">
                           DRAW
                         </div>
@@ -1196,19 +1196,19 @@ export default function LiveStream() {
                   ) : (
                     <div className="mt-9 flex items-center justify-between animate-luxury-fade-in">
                       <div
-                        className={`px-4 py-2 rounded-full border-2 text-sm font-black tracking-widest shadow-2xl transition-all ${
+                        className={`px-4 py-2 text-sm font-black tracking-widest transition-all ${
                           battleWinner === 'me'
-                            ? 'bg-gradient-to-r from-[#FFD700] to-[#E6B36A] text-black border-[#E6B36A] animate-premium-glow scale-110'
-                            : 'glass text-white/50 border-white/20'
+                            ? 'bg-gradient-to-r from-[#FFD700] to-[#E6B36A] text-black animate-premium-glow scale-110'
+                            : 'text-white/50'
                         }`}
                       >
                         {battleWinner === 'me' ? '🏆 WIN' : ''}
                       </div>
                       <div
-                        className={`px-4 py-2 rounded-full border-2 text-sm font-black tracking-widest shadow-2xl transition-all ${
+                        className={`px-4 py-2 text-sm font-black tracking-widest transition-all ${
                           battleWinner === 'opponent'
-                            ? 'bg-gradient-to-r from-[#FFD700] to-[#E6B36A] text-black border-[#E6B36A] animate-premium-glow scale-110'
-                            : 'glass text-white/50 border-white/20'
+                            ? 'bg-gradient-to-r from-[#FFD700] to-[#E6B36A] text-black animate-premium-glow scale-110'
+                            : 'text-white/50'
                         }`}
                       >
                         {battleWinner === 'opponent' ? '🏆 WIN' : ''}
@@ -1220,43 +1220,13 @@ export default function LiveStream() {
             </div>
 
             {/* Chat Section (Bottom) */}
-            <div className="flex-1 bg-black overflow-hidden relative pt-6">
+            <div className="flex-1 bg-black overflow-hidden relative pt-6 pointer-events-none">
               <ChatOverlay
                 messages={messages}
                 variant="panel"
                 className="static w-full h-full bg-black border-0 p-4"
-                onLike={() => addLiveLikes(1)}
               />
               
-              <div className="absolute right-4 bottom-4 z-[80] pointer-events-auto flex flex-col gap-3">
-                {/* LUXURY BATTLE CONTROLS */}
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="w-12 h-12 glass-premium rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all"
-                >
-                  <img src="/Icons/battle-share.png" alt="Share" className="w-10 h-10 object-contain" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert('Reported')}
-                  className="w-12 h-12 glass-premium rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 active:scale-95 transition-all"
-                >
-                  <MoreVertical className="w-5 h-5" strokeWidth={2.5} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowGiftPanel(true)}
-                  className="w-14 h-14 glass-premium rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all animate-premium-glow relative"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#E6B36A]/30 to-transparent rounded-full blur-md" />
-                  <img
-                    src="/Icons/gift-button.png"
-                    alt="Gift"
-                    className="w-12 h-12 object-contain relative z-10"
-                  />
-                </button>
-              </div>
             </div>
           </div>
         ) : (
@@ -1315,7 +1285,7 @@ export default function LiveStream() {
             )}
 
             {isBroadcast && cameraError && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white font-bold">
+              <div className="absolute inset-0 flex items-center justify-center bg-black text-white font-bold">
                 {cameraError}
               </div>
             )}
@@ -1327,22 +1297,19 @@ export default function LiveStream() {
         <div className="absolute top-0 left-0 right-0 z-[90] pointer-events-none">
           <div className="px-3" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 6px)' }}>
             <div className="flex items-start justify-between gap-2">
-              <div className="pointer-events-auto flex flex-col gap-2">
-                <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-black/60">
+              <div className="pointer-events-auto flex flex-col gap-1">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1.5">
                   <div className="min-w-0">
                     <p className="font-extrabold text-[16px] truncate max-w-[170px]">{myCreatorName}</p>
-                    <div className="flex items-center gap-2 text-[13px] font-semibold text-[#E6B36A]">
-                      <motion.div
-                        key={activeLikes}
-                        initial={{ scale: 1 }}
-                        animate={{ scale: [1, 1.4, 1] }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Heart className="w-4 h-4 text-red-500 fill-red-500" strokeWidth={2} />
-                      </motion.div>
-                      <span>{activeLikes.toLocaleString()}</span>
-                    </div>
                   </div>
+                </div>
+                
+                {/* LIVE LIKES COUNTER - Under Profile in Battle Mode */}
+                <div className="pl-2 flex items-center gap-1">
+                  <Heart className="w-4 h-4 text-[#E6B36A]" strokeWidth={2.5} fill="#E6B36A" />
+                  <span className="text-white text-sm font-black tabular-nums">
+                    {activeLikes.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
@@ -1350,7 +1317,7 @@ export default function LiveStream() {
                 <button
                   type="button"
                   onClick={stopBroadcast}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:scale-110 transition"
+                  className="w-9 h-9 flex items-center justify-center hover:scale-110 transition"
                 >
                   <img src="/Icons/power-button.png" alt="Exit" className="w-9 h-9 object-contain" />
                 </button>
@@ -1366,13 +1333,13 @@ export default function LiveStream() {
             <div className="flex items-start justify-between gap-2">
               <div className="pointer-events-auto flex flex-col gap-2">
                 {/* LUXURY BROADCASTER INFO */}
-                <div className="glass-premium rounded-2xl px-3 py-2 shadow-2xl animate-luxury-fade-in">
+                <div className="px-3 py-2 animate-luxury-fade-in">
                   <div className="flex items-center gap-2">
                     <div className="relative">
                       <img
                         src={myAvatar}
                         alt={myCreatorName}
-                        className="w-9 h-9 rounded-full object-cover border-2 border-[#E6B36A]/50 shadow-lg"
+                        className="w-9 h-9 rounded-full object-cover border-2 border-[#E6B36A] shadow-lg"
                       />
                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gradient-to-br from-red-400 to-red-600 rounded-full border-2 border-black animate-premium-glow" />
                     </div>
@@ -1384,10 +1351,6 @@ export default function LiveStream() {
                         <span className="px-1.5 py-0.5 bg-gradient-to-r from-[#E6B36A] to-[#FFD700] rounded text-black text-[9px] font-black uppercase tracking-wide">
                           LIVE
                         </span>
-                        <span className="inline-flex items-center gap-1 bg-black/50 rounded-full px-1.5 py-0.5">
-                          <Heart className="w-2.5 h-2.5 text-red-500" strokeWidth={2.5} />
-                          <span className="text-white text-[10px] font-bold">7</span>
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -1398,7 +1361,7 @@ export default function LiveStream() {
                 <button
                   type="button"
                   onClick={stopBroadcast}
-                  className="w-10 h-10 glass-premium rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                  className="w-10 h-10 flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
                 >
                   <img src="/Icons/power-button.png" alt="Exit" className="w-8 h-8 object-contain" />
                 </button>
@@ -1406,7 +1369,7 @@ export default function LiveStream() {
             </div>
             {currentUniverse && (
               <div className="mt-1">
-                <div className="pointer-events-auto h-7 rounded-lg bg-black/55 border border-white/15 flex items-center overflow-hidden">
+                <div className="pointer-events-auto h-7 rounded-lg bg-black border border-transparent flex items-center overflow-hidden">
                   <div className="elix-marquee w-full">
                     <div
                       key={currentUniverse.id}
@@ -1435,37 +1398,41 @@ export default function LiveStream() {
         <div className="absolute top-0 left-0 right-0 z-[80] pointer-events-none">
         <div className="px-3" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}>
           <div className="flex items-start justify-between gap-3">
-            {/* LUXURY CREATOR PROFILE BUTTON */}
-            <button type="button" onClick={() => openMiniProfile(myCreatorName)} className="pointer-events-auto glass-premium rounded-2xl pr-3 pl-2 py-2 shadow-2xl hover:scale-105 transition-all animate-luxury-fade-in">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <img
-                    src={myAvatar}
-                    alt={myCreatorName}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-[#E6B36A] shadow-lg"
-                  />
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-br from-red-400 to-red-600 rounded-full border-2 border-black animate-premium-glow" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-white font-black text-[14px] truncate max-w-[160px]">{myCreatorName}</p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-1.5 py-0.5">
-                      <Heart className="w-3 h-3 text-[#E6B36A]" strokeWidth={2.5} fill="#E6B36A" />
-                      <span className="text-white text-[10px] font-black tabular-nums">
-                        {activeLikes.toLocaleString()}
+            <div className="pointer-events-auto flex flex-col gap-1">
+              {/* LUXURY CREATOR PROFILE BUTTON */}
+              <button type="button" onClick={() => openMiniProfile(myCreatorName)} className="pr-3 pl-2 py-2 hover:scale-105 transition-all animate-luxury-fade-in">
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <img
+                      src={myAvatar}
+                      alt={myCreatorName}
+                      className="w-11 h-11 rounded-full object-cover border-2 border-[#E6B36A] shadow-lg"
+                    />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-br from-red-400 to-red-600 rounded-full border-2 border-black animate-premium-glow" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white font-black text-[14px] truncate max-w-[160px]">{myCreatorName}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.5 bg-gradient-to-r from-[#E6B36A] to-[#FFD700] rounded text-black text-[9px] font-black uppercase tracking-wide">
+                        LIVE
                       </span>
                     </div>
-                    <span className="px-1.5 py-0.5 bg-gradient-to-r from-[#E6B36A] to-[#FFD700] rounded text-black text-[9px] font-black uppercase tracking-wide">
-                      LIVE
-                    </span>
                   </div>
                 </div>
+              </button>
+
+              {/* LIVE LIKES COUNTER - Under Profile */}
+              <div className="pl-2 flex items-center gap-1">
+                <Heart className="w-4 h-4 text-[#E6B36A]" strokeWidth={2.5} fill="#E6B36A" />
+                <span className="text-white text-sm font-black tabular-nums">
+                  {activeLikes.toLocaleString()}
+                </span>
               </div>
-            </button>
+            </div>
 
             <div className="pointer-events-auto flex flex-col items-center gap-2">
               {/* LUXURY POPULAR BADGE */}
-              <div className="glass-premium h-9 px-3 rounded-full flex items-center gap-2 shadow-lg animate-luxury-fade-in">
+              <div className="h-9 px-3 flex items-center gap-2 animate-luxury-fade-in">
                 <Flame className="w-4 h-4 text-[#E6B36A] animate-float" strokeWidth={2.5} />
                 <span className="text-white text-xs font-black">Popular</span>
               </div>
@@ -1473,7 +1440,7 @@ export default function LiveStream() {
                 <button
                   type="button"
                   onClick={() => setIsFindCreatorsOpen(true)}
-                  className="pointer-events-auto glass-premium h-8 px-3 rounded-full text-[#E6B36A] text-xs font-black flex items-center gap-2 hover:scale-105 transition-all shadow-lg"
+                  className="pointer-events-auto  h-8 px-3 text-[#E6B36A] text-xs font-black flex items-center gap-2 hover:scale-105 transition-all"
                 >
                   <UsersRound className="w-4 h-4" strokeWidth={2.5} />
                   Find creators
@@ -1486,7 +1453,7 @@ export default function LiveStream() {
                 <button
                   type="button"
                   onClick={isBroadcast ? stopBroadcast : () => navigate('/')}
-                  className="w-10 h-10 glass-premium rounded-full text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                  className="w-10 h-10 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
                 >
                   <LogOut size={20} strokeWidth={2.5} />
                 </button>
@@ -1497,7 +1464,7 @@ export default function LiveStream() {
 
           {currentUniverse && (
             <div className="mt-0">
-              <div className="pointer-events-auto h-7 rounded-lg bg-red-950 border border-[#E6B36A]/30 flex items-center justify-center overflow-hidden shadow-[0_0_16px_rgba(230,179,106,0.12)]">
+              <div className="pointer-events-auto h-7 rounded-lg bg-red-950 border border-[#E6B36A] flex items-center justify-center overflow-hidden shadow-[0_0_16px_rgba(230,179,106,0.12)]">
                 <div className="w-full px-2 text-center">
                   <div
                     key={currentUniverse.id}
@@ -1515,9 +1482,9 @@ export default function LiveStream() {
       )}
 
       {isFindCreatorsOpen && (
-        <div className="fixed inset-0 z-[500] bg-black/70 backdrop-blur-sm flex items-end justify-center">
-          <div className="w-full max-w-[500px] bg-black border-t border-[#E6B36A]/30 rounded-t-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#E6B36A]/20">
+        <div className="fixed inset-0 z-[500] bg-black  flex items-end justify-center">
+          <div className="w-full max-w-[500px] bg-black overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#E6B36A]">
               <p className="text-[#E6B36A] font-extrabold">Invite to Battle</p>
               <button
                 type="button"
@@ -1547,10 +1514,10 @@ export default function LiveStream() {
               {filteredCreators.map((c) => (
                 <div
                   key={c.id}
-                  className="px-4 py-3 flex items-center justify-between border-b border-white/5"
+                  className="px-4 py-3 flex items-center justify-between border-b border-transparent"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-[#E6B36A]/20 border border-[#E6B36A]/25 flex items-center justify-center text-[#E6B36A] font-extrabold">
+                    <div className="w-10 h-10 flex items-center justify-center text-[#E6B36A] font-extrabold">
                       {c.name.slice(0, 1).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -1562,7 +1529,7 @@ export default function LiveStream() {
                   <button
                     type="button"
                     onClick={() => startBattleWithCreator(c.name)}
-                    className="px-3 py-1.5 rounded-full bg-[#E6B36A] text-black text-xs font-extrabold"
+                    className="px-3 py-1.5 bg-[#E6B36A] text-black text-xs font-extrabold"
                   >
                     Invite
                   </button>
@@ -1592,9 +1559,9 @@ export default function LiveStream() {
             exit={{ opacity: 0 }}
             onClick={closeMiniProfile}
           >
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 bg-black" />
             <motion.div
-              className="relative w-full md:w-[450px] rounded-t-3xl bg-black/90 border border-white/10 px-4 pt-4 pb-[calc(20px+env(safe-area-inset-bottom))]"
+              className="relative w-full md:w-[450px] rounded-t-3xl bg-black border border-transparent px-4 pt-4 pb-[calc(20px+env(safe-area-inset-bottom))]"
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 24, opacity: 0 }}
@@ -1619,7 +1586,7 @@ export default function LiveStream() {
                     </div>
                   </div>
                 </div>
-                <button type="button" onClick={closeMiniProfile} className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white">
+                <button type="button" onClick={closeMiniProfile} className="w-9 h-9 flex items-center justify-center text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -1634,14 +1601,14 @@ export default function LiveStream() {
                     setShowGiftPanel(true);
                     closeMiniProfile();
                   }}
-                  className="h-10 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-black"
+                  className="h-10 text-white text-xs font-black"
                 >
                   Gift
                 </button>
-                <button type="button" onClick={handleShare} className="h-10 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-black">
+                <button type="button" onClick={handleShare} className="h-10 text-white text-xs font-black">
                   Share
                 </button>
-                <button type="button" onClick={() => alert('Blocked')} className="h-10 rounded-xl bg-red-950/70 border border-red-400/20 text-white text-xs font-black">
+                <button type="button" onClick={() => alert('Blocked')} className="h-10 bg-red-950 text-white text-xs font-black">
                   Block
                 </button>
               </div>
@@ -1679,12 +1646,12 @@ export default function LiveStream() {
             >
                 <button 
                     onClick={handleComboClick}
-                    className="w-14 h-14 bg-gradient-to-r from-secondary to-orange-500 rounded-full flex flex-col items-center justify-center shadow-lg border-2 border-white animate-pulse active:scale-90 transition-transform"
+                    className="w-14 h-14 bg-gradient-to-r from-secondary to-orange-500 flex flex-col items-center justify-center animate-pulse active:scale-90 transition-transform"
                 >
                     <span className="text-lg font-black italic text-white drop-shadow-md">x{comboCount}</span>
                     <span className="text-[8px] font-bold text-white uppercase tracking-widest">Combo</span>
                 </button>
-                <div className="mt-1 bg-black/60 px-2 py-0.5 rounded-full text-[10px] text-secondary font-bold border border-secondary/30">
+                <div className="mt-1 px-2 py-0.5 text-[10px] text-secondary font-bold">
                     Send {lastSentGift.name}
                 </div>
             </motion.div>
@@ -1695,11 +1662,11 @@ export default function LiveStream() {
       {!isBroadcast && (
       <div className={`absolute bottom-4 left-4 right-4 z-[55] flex items-center gap-2 ${isPlayingGift ? 'justify-end' : ''}`}>
         {!isPlayingGift && (
-            <form onSubmit={handleSendMessage} className="flex-1 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2">
+            <form onSubmit={handleSendMessage} className="flex-1 bg-black px-4 py-2 flex items-center gap-2">
                 <input 
                     type="text" 
                     placeholder="Say something..." 
-                    className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-gray-400"
+                    className="text-white text-sm outline-none flex-1 placeholder:text-gray-400"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onPointerDown={() => addLiveLikes(1)}
@@ -1714,7 +1681,7 @@ export default function LiveStream() {
         {!isBattleMode && (
         <button 
             onClick={simulateIncomingGift}
-            className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-xs text-white border border-none"
+            className="w-8 h-8 flex items-center justify-center text-xs text-white"
             title="Simulate Incoming Gift"
         >
             🧪
@@ -1724,9 +1691,9 @@ export default function LiveStream() {
         {/* Gift Button - Visible for everyone for testing */}
         <button
             onClick={() => setShowGiftPanel(true)}
-            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition border border-none"
+            className="w-6 h-6 flex items-center justify-center hover:scale-110 active:scale-125 transition"
         >
-            <img src="/Icons/gift-button.png" alt="Gift" className="w-10 h-10 object-contain" />
+            <img src="/Icons/gift-button.png" alt="Gift" className="w-6 h-6 object-contain" />
         </button>
       </div>
       )}
@@ -1737,43 +1704,42 @@ export default function LiveStream() {
           <div className="absolute bottom-0 left-0 right-0 z-[95]">
             <div className="px-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
               {/* LUXURY BATTLE MODE CONTROLS */}
-              <div className="glass-premium rounded-3xl px-4 py-3 shadow-2xl">
+              <div className="px-4 py-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setIsFindCreatorsOpen(true)}
-                      className="w-14 h-14 glass rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/friend-button.png" alt="Friends" className="w-12 h-12 object-contain" />
+                      <img src="/Icons/friend-button.png" alt="Friends" className="w-6 h-6 object-contain" />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         setGiftTarget('me');
                         setShowGiftPanel(true);
                       }}
-                      className="w-14 h-14 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg animate-premium-glow relative"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all relative"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#E6B36A]/30 to-transparent rounded-full blur-md" />
-                      <img src="/Icons/gift-button.png" alt="Gifts" className="w-12 h-12 object-contain relative z-10" />
+                      <img src="/Icons/gift-button.png" alt="Gifts" className="w-6 h-6 object-contain relative z-10" />
                     </button>
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="w-12 h-12 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/battle-share.png" alt="Share" className="w-10 h-10 object-contain" />
+                      <img src="/Icons/battle-share.png" alt="Share" className="w-6 h-6 object-contain" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsMoreMenuOpen(true)}
-                      className="w-12 h-12 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/more-button.png" alt="More" className="w-10 h-10 object-contain" />
+                      <img src="/Icons/more-button.png" alt="More" className="w-6 h-6 object-contain" />
                     </button>
                   </div>
                 </div>
@@ -1785,51 +1751,49 @@ export default function LiveStream() {
           <div className="absolute bottom-0 left-0 right-0 z-[95]">
             <div className="px-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
               {/* LUXURY BROADCASTER CONTROLS */}
-              <div className="glass-premium rounded-3xl px-4 py-3 shadow-2xl">
+              <div className="px-4 py-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={toggleBattle}
-                      className="w-14 h-14 glass rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all relative"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all relative"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent rounded-full blur-md" />
-                      <img src="/Icons/battle-button.png" alt="Battle" className="w-12 h-12 object-contain relative z-10" />
+                      <img src="/Icons/battle-button.png" alt="Battle" className="w-6 h-6 object-contain relative z-10" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsFindCreatorsOpen(true)}
-                      className="w-14 h-14 glass rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/friend-button.png" alt="Friends" className="w-12 h-12 object-contain" />
+                      <img src="/Icons/friend-button.png" alt="Friends" className="w-6 h-6 object-contain" />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         setGiftTarget('me');
                         setShowGiftPanel(true);
                       }}
-                      className="w-14 h-14 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg animate-premium-glow relative"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all relative"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#E6B36A]/30 to-transparent rounded-full blur-md" />
-                      <img src="/Icons/gift-button.png" alt="Gifts" className="w-12 h-12 object-contain relative z-10" />
+                      <img src="/Icons/gift-button.png" alt="Gifts" className="w-6 h-6 object-contain relative z-10" />
                     </button>
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="w-12 h-12 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/battle-share.png" alt="Share" className="w-10 h-10 object-contain" />
+                      <img src="/Icons/battle-share.png" alt="Share" className="w-6 h-6 object-contain" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsMoreMenuOpen(true)}
-                      className="w-12 h-12 glass rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
+                      className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all"
                     >
-                      <img src="/Icons/more-button.png" alt="More" className="w-10 h-10 object-contain" />
+                      <img src="/Icons/more-button.png" alt="More" className="w-6 h-6 object-contain" />
                     </button>
                   </div>
                 </div>
@@ -1842,14 +1806,14 @@ export default function LiveStream() {
 
       {isMoreMenuOpen && (
         <div
-          className="fixed inset-0 z-[700] bg-black/50"
+          className="fixed inset-0 z-[700] bg-black"
           onClick={() => setIsMoreMenuOpen(false)}
           role="button"
           tabIndex={-1}
         >
           <div className="absolute bottom-0 left-0 right-0 px-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <div
-              className="mx-auto w-full max-w-[500px] rounded-2xl bg-black/90 border border-[#E6B36A]/25 overflow-hidden"
+              className="mx-auto w-full max-w-[500px] bg-black overflow-hidden"
               onClick={(e) => e.stopPropagation()}
               role="button"
               tabIndex={-1}
@@ -1868,7 +1832,7 @@ export default function LiveStream() {
                   <span className="font-semibold">Flip camera</span>
                 </div>
               </button>
-              <div className="h-px bg-[#E6B36A]/10" />
+              <div className="h-px bg-[#E6B36A]" />
               <button
                 type="button"
                 disabled={!isBroadcast}
@@ -1883,7 +1847,7 @@ export default function LiveStream() {
                   <span className="font-semibold">{isMicMuted ? 'Unmute microphone' : 'Mute microphone'}</span>
                 </div>
               </button>
-              <div className="h-px bg-[#E6B36A]/10" />
+              <div className="h-px bg-[#E6B36A]" />
               <button
                 type="button"
                 onClick={() => {
@@ -1897,7 +1861,7 @@ export default function LiveStream() {
                   <span className="font-semibold">Live settings</span>
                 </div>
               </button>
-              <div className="h-px bg-[#E6B36A]/10" />
+              <div className="h-px bg-[#E6B36A]" />
               <button
                 type="button"
                 onClick={() => {
@@ -1918,14 +1882,14 @@ export default function LiveStream() {
 
       {isLiveSettingsOpen && (
         <div
-          className="fixed inset-0 z-[710] bg-black/55"
+          className="fixed inset-0 z-[710] bg-black"
           onClick={() => setIsLiveSettingsOpen(false)}
           role="button"
           tabIndex={-1}
         >
           <div className="absolute bottom-0 left-0 right-0 px-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <div
-              className="mx-auto w-full max-w-[500px] rounded-2xl bg-black/90 border border-[#E6B36A]/25 overflow-hidden"
+              className="mx-auto w-full max-w-[500px] bg-black overflow-hidden"
               onClick={(e) => e.stopPropagation()}
               role="button"
               tabIndex={-1}
@@ -1939,7 +1903,7 @@ export default function LiveStream() {
                   <X className="w-5 h-5" strokeWidth={2} />
                 </button>
               </div>
-              <div className="h-px bg-[#E6B36A]/10" />
+              <div className="h-px bg-[#E6B36A]" />
               <div className="p-2">
                 <button
                   type="button"
@@ -1947,7 +1911,7 @@ export default function LiveStream() {
                     toggleMic();
                     setIsLiveSettingsOpen(false);
                   }}
-                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] rounded-xl hover:bg-white/5"
+                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] hover:brightness-125"
                 >
                   <div className="flex items-center gap-3">
                     {isMicMuted ? <MicOff className="w-5 h-5" strokeWidth={2} /> : <Mic className="w-5 h-5" strokeWidth={2} />}
@@ -1961,7 +1925,7 @@ export default function LiveStream() {
                     setIsChatVisible((v) => !v);
                     setIsLiveSettingsOpen(false);
                   }}
-                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] rounded-xl hover:bg-white/5"
+                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] hover:brightness-125"
                 >
                   <div className="flex items-center gap-3">
                     <MessageCircle className="w-5 h-5" strokeWidth={2} />
@@ -1975,7 +1939,7 @@ export default function LiveStream() {
                     await handleShare();
                     setIsLiveSettingsOpen(false);
                   }}
-                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] rounded-xl hover:bg-white/5"
+                  className="w-full px-4 py-3 flex items-center justify-between text-[#E6B36A] hover:brightness-125"
                 >
                   <div className="flex items-center gap-3">
                     <img src="/Icons/battle-share.png" alt="Share" className="w-7 h-7 object-contain" />
@@ -1993,7 +1957,7 @@ export default function LiveStream() {
         {showGiftPanel && (
             <>
                 <div 
-                    className="absolute inset-0 bg-black/50 z-30"
+                    className="absolute inset-0 bg-black z-30"
                     onClick={() => setShowGiftPanel(false)}
                 />
                 <motion.div

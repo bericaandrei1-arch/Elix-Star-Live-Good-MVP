@@ -58,7 +58,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-black/60 border border-white/10 rounded-2xl p-5">
+      <div className="w-full max-w-[420px] bg-black60 border border-white/10 rounded-2xl p-5">
         <h1 className="text-xl font-bold mb-4">Login</h1>
 
         <form onSubmit={onSubmit} className="space-y-3">
@@ -70,7 +70,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
+                className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-secondary/50"
                 placeholder="you@email.com"
                 autoComplete="email"
                 required
@@ -86,7 +86,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
+                className="w-full bg-black40 border border-white/10 rounded-xl pl-9 pr-9 py-2 text-sm outline-none focus:border-secondary/50"
                 placeholder="••••••••"
                 autoComplete="current-password"
                 required
@@ -101,7 +101,7 @@ export default function Login() {
             </div>
           </div>
 
-          <label className="flex items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded-xl">
+          <label className="flex items-center justify-between px-3 py-2 bg-transparent5 border border-white/10 rounded-xl">
             <span className="text-xs">Save password</span>
             <input
               type="checkbox"
@@ -124,7 +124,7 @@ export default function Login() {
             <button
               type="button"
               disabled={isResending}
-              className="w-full bg-white/10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
+              className="w-full bg-transparent10 border border-white/10 rounded-xl py-2 text-sm disabled:opacity-60"
               onClick={async () => {
                 const trimmed = email.trim();
                 if (!trimmed) {
@@ -168,7 +168,7 @@ export default function Login() {
               loginAsGuest();
               navigate(from, { replace: true });
             }}
-            className="w-full bg-white/10 text-white font-bold rounded-xl py-2 text-sm hover:bg-white/20"
+            className="w-full bg-transparent10 text-white font-bold rounded-xl py-2 text-sm hover:bg-transparent20"
           >
             Guest Login (Demo)
           </button>

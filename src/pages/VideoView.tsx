@@ -25,7 +25,7 @@ export default function VideoView() {
         <div className="absolute left-3 top-3 z-[250]">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-full bg-black/50 border border-white/10 text-white"
+            className="p-2 rounded-full bg-black border border-transparent text-white"
             aria-label="Back"
           >
             <ArrowLeft size={20} />

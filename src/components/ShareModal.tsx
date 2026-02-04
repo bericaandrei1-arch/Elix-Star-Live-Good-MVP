@@ -189,10 +189,10 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-[500] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[500] bg-black flex items-center justify-center p-4">
       <div className="bg-[#121212] rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-transparent">
           <div className="flex items-center gap-3">
             <Share2 className="w-5 h-5 text-[#FE2C55]" />
             <h3 className="text-white font-semibold">Share Video</h3>
@@ -203,7 +203,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
         </div>
 
         {/* Video Preview */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-transparent">
           <div className="flex gap-3">
             <img 
               src={video.thumbnail || `https://picsum.photos/80/120?random=${video.id}`} 
@@ -246,7 +246,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
           <div className="space-y-3">
             <button
               onClick={handleDownload}
-              className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 hover:brightness-125 rounded-lg transition-colors"
             >
               <Download className="w-5 h-5 text-white" />
               <span className="text-white">Download Video</span>
@@ -254,7 +254,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
 
             <button
               onClick={generateQRCode}
-              className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 hover:brightness-125 rounded-lg transition-colors"
             >
               <QrCode className="w-5 h-5 text-white" />
               <span className="text-white">Generate QR Code</span>
@@ -262,7 +262,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
 
             <button
               onClick={generateEmbedCode}
-              className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 hover:brightness-125 rounded-lg transition-colors"
             >
               <Code className="w-5 h-5 text-white" />
               <span className="text-white">Copy Embed Code</span>
@@ -276,7 +276,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
               value={shareMessage}
               onChange={(e) => setShareMessage(e.target.value)}
               placeholder="Say something about this video..."
-              className="w-full bg-white/10 text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-white/20 resize-none"
+              className="w-full bg-white text-white rounded-lg p-3 text-sm focus:outline-none focus:bg-black resize-none"
               rows={3}
             />
           </div>
@@ -284,7 +284,7 @@ export default function ShareModal({ isOpen, onClose, video }: ShareModalProps) 
 
         {/* QR Code Modal */}
         {showQRCode && (
-          <div className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[600] bg-black flex items-center justify-center p-4">
             <div className="bg-[#121212] rounded-2xl p-6 max-w-sm w-full">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-white font-semibold">QR Code</h4>

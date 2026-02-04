@@ -88,7 +88,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
 
   if (isBlocked) {
     return (
-      <div className="fixed inset-0 z-[500] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[500] bg-black flex items-center justify-center p-4">
         <div className="bg-[#121212] rounded-2xl p-6 max-w-sm w-full text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Ban className="w-8 h-8 text-red-500" />
@@ -112,7 +112,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
               }
               unblockUser(user.id);
             }}
-            className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+            className="px-4 py-2 bg-white text-white rounded-lg hover:bg-white transition-colors"
           >
             Unblock User
           </button>
@@ -122,10 +122,10 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
   }
 
   return (
-    <div className="fixed inset-0 z-[500] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[500] bg-black flex items-center justify-center p-4">
       <div className="bg-[#121212] rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-transparent">
           <h3 className="text-white font-semibold">Profile</h3>
           <button onClick={onClose} className="p-1 text-white/70 hover:text-white">
             <X size={20} />
@@ -176,13 +176,13 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
           </div>
 
           <div className="grid grid-cols-3 gap-2 mb-6">
-            <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex items-center justify-center">
+            <div className="bg-white border border-transparent rounded-xl px-3 py-3 flex items-center justify-center">
               <div className="text-xs font-extrabold text-white/80">A1</div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex items-center justify-center">
+            <div className="bg-white border border-transparent rounded-xl px-3 py-3 flex items-center justify-center">
               <LevelBadge level={user.level ?? 1} size={10} layout="fixed" />
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex items-center justify-center">
+            <div className="bg-white border border-transparent rounded-xl px-3 py-3 flex items-center justify-center">
               <div className="text-xs font-extrabold text-white/80">TOP</div>
             </div>
           </div>
@@ -198,13 +198,13 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
           <div className="space-y-2 mb-6">
             {user.location && (
               <div className="flex items-center gap-2 text-white/60 text-sm">
-                <div className="w-4 h-4 bg-white/60 rounded-full" />
+                <div className="w-4 h-4 bg-white rounded-full" />
                 <span>{user.location}</span>
               </div>
             )}
             {user.website && (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-white/60 rounded-full" />
+                <div className="w-4 h-4 bg-white rounded-full" />
                 <a
                   href={user.website}
                   target="_blank"
@@ -217,7 +217,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
             )}
             {user.joinedDate && (
               <div className="flex items-center gap-2 text-white/60 text-sm">
-                <div className="w-4 h-4 bg-white/60 rounded-full" />
+                <div className="w-4 h-4 bg-white rounded-full" />
                 <span>Joined {formatDate(user.joinedDate)}</span>
               </div>
             )}
@@ -230,7 +230,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                 {user.isFollowing ? (
                   <button
                     onClick={onFollow}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white text-white rounded-lg hover:bg-white transition-colors"
                   >
                     <UserMinus size={16} />
                     <span>Following</span>
@@ -247,7 +247,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                 
                 <button
                   onClick={handleMessage}
-                  className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                  className="px-4 py-2 bg-white text-white rounded-lg hover:bg-white transition-colors"
                 >
                   <MessageCircle size={16} />
                 </button>
@@ -257,18 +257,18 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
             <div className="relative">
               <button
                 onClick={() => setShowMoreOptions(!showMoreOptions)}
-                className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                className="px-4 py-2 bg-white text-white rounded-lg hover:bg-white transition-colors"
               >
                 <MoreHorizontal size={16} />
               </button>
               
               {showMoreOptions && (
-                <div className="absolute top-full right-0 mt-2 bg-[#1a1a1a] rounded-lg shadow-xl border border-white/10 z-10 min-w-[200px]">
+                <div className="absolute top-full right-0 mt-2 bg-[#1a1a1a] rounded-lg shadow-xl border border-transparent z-10 min-w-[200px]">
                   {!isOwnProfile && (
                     <>
                       <button
                         onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white transition-colors text-left"
                       >
                         {notificationsEnabled ? <BellOff size={16} /> : <Bell size={16} />}
                         <span>{notificationsEnabled ? 'Disable' : 'Enable'} Notifications</span>
@@ -276,17 +276,17 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                       
                       <button
                         onClick={handleShareProfile}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white transition-colors text-left"
                       >
                         <Share2 size={16} />
                         <span>Share Profile</span>
                       </button>
                       
-                      <div className="border-t border-white/10 my-1" />
+                      <div className="border-t border-transparent my-1" />
                       
                       <button
                         onClick={handleReportUser}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-orange-400 hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-orange-400 hover:bg-white transition-colors text-left"
                       >
                         <Flag size={16} />
                         <span>Report User</span>
@@ -294,7 +294,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                       
                       <button
                         onClick={handleBlockUser}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white transition-colors text-left"
                       >
                         <Ban size={16} />
                         <span>Block User</span>
@@ -306,17 +306,17 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                     <>
                       <button
                         onClick={() => {/* Edit profile */}}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white transition-colors text-left"
                       >
-                        <div className="w-4 h-4 bg-white/60 rounded-full" />
+                        <div className="w-4 h-4 bg-white rounded-full" />
                         <span>Edit Profile</span>
                       </button>
                       
                       <button
                         onClick={() => {/* View analytics */}}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white transition-colors text-left"
                       >
-                        <div className="w-4 h-4 bg-white/60 rounded-full" />
+                        <div className="w-4 h-4 bg-white rounded-full" />
                         <span>View Analytics</span>
                       </button>
                     </>
@@ -339,7 +339,7 @@ export default function UserProfileModal({ isOpen, onClose, user, onFollow }: Us
                     alt="Video thumbnail"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-1 left-1 text-white text-xs bg-black/50 px-1 py-0.5 rounded">
+                  <div className="absolute bottom-1 left-1 text-white text-xs bg-black px-1 py-0.5 rounded">
                     {video.duration}
                   </div>
                 </div>

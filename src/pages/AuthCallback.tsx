@@ -63,7 +63,7 @@ export default function AuthCallback() {
         <div className="text-sm text-white/70">
           {status === 'working' ? 'Working...' : 'Something went wrong.'}
         </div>
-        <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-xl text-sm break-words">
+        <div className="mt-4 p-4 bg-transparent border border-transparent rounded-xl text-sm break-words">
           {message}
         </div>
         <button

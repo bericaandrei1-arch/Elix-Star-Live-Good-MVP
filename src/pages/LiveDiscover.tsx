@@ -70,7 +70,7 @@ export default function LiveDiscover() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
-      <div className="relative w-full h-[100dvh] md:w-[450px] md:h-[90vh] md:max-h-[850px] md:rounded-3xl bg-black overflow-hidden shadow-2xl border border-white/10">
+      <div className="relative w-full h-[100dvh] md:w-[450px] md:h-[90vh] md:max-h-[850px] md:rounded-3xl bg-black overflow-hidden shadow-2xl">
         <div className="absolute inset-0 bg-black" />
 
         <div className="relative z-10 px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
@@ -81,7 +81,7 @@ export default function LiveDiscover() {
             </div>
             <button 
               onClick={fetchLiveStreams}
-              className="p-2 text-[#E6B36A] hover:bg-white/5 rounded-full"
+              className="p-2 text-[#E6B36A] hover:brightness-125 rounded-full"
             >
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
             </button>
@@ -96,10 +96,10 @@ export default function LiveDiscover() {
                   key={c.id}
                   type="button"
                   onClick={() => navigate(`/live/${c.id}`)}
-                  className="w-full flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 active:scale-[0.99] transition-transform"
+                  className="w-full flex items-center justify-between gap-3 p-3 rounded-2xl active:scale-[0.99] transition-transform"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-full bg-[#E6B36A]/15 border border-[#E6B36A]/25 flex items-center justify-center text-[#E6B36A] font-extrabold text-lg">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-[#E6B36A] font-extrabold text-lg">
                       {c.name.slice(0, 1).toUpperCase()}
                     </div>
                     <div className="min-w-0 text-left">
@@ -113,14 +113,14 @@ export default function LiveDiscover() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-[#E6B36A] text-xs font-extrabold bg-[#E6B36A]/10 px-3 py-1.5 rounded-full border border-[#E6B36A]/30">
+                  <div className="text-[#E6B36A] text-xs font-extrabold px-3 py-1.5 rounded-full">
                     Watch
                   </div>
                 </button>
               ))
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center">
                   <User className="w-8 h-8 text-white/20" />
                 </div>
                 <div>

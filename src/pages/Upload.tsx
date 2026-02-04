@@ -416,7 +416,7 @@ export default function Upload() {
                {/* Preview Top Controls */}
                <div className="absolute top-[2%] left-0 right-0 z-20 flex justify-center pointer-events-auto">
                     <button 
-                        className="w-40 h-8 rounded-full flex items-center justify-center gap-1 bg-black/50 backdrop-blur-md border border-white/20"
+                        className="w-40 h-8 rounded-full flex items-center justify-center gap-1 bg-black border border-transparent"
                         onClick={() => setShowMusicModal(true)}
                     >
                         <Music size={14} className="text-white" />
@@ -427,19 +427,19 @@ export default function Upload() {
                </div>
 
                <div className="absolute bottom-[22%] left-0 right-0 z-20 px-4 pointer-events-auto">
-                 <div className="bg-black/55 backdrop-blur-md border border-white/10 rounded-2xl p-3 space-y-3">
+                 <div className="bg-black border border-transparent rounded-2xl p-3 space-y-3">
                    <textarea
                      value={caption}
                      onChange={(e) => setCaption(e.target.value)}
                      placeholder="Write a caption…"
-                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none resize-none h-20"
+                     className="w-full bg-white border border-transparent rounded-xl px-3 py-2 text-sm outline-none resize-none h-20"
                      aria-label="Caption"
                    />
                    <input
                      value={hashtagsText}
                      onChange={(e) => setHashtagsText(e.target.value)}
                      placeholder="Hashtags (ex: elix, live, creator)"
-                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none"
+                     className="w-full bg-white border border-transparent rounded-xl px-3 py-2 text-sm outline-none"
                      aria-label="Hashtags"
                    />
                    <div className="flex items-center justify-between">
@@ -447,7 +447,7 @@ export default function Upload() {
                      <button
                        type="button"
                        className={`w-12 h-7 rounded-full border transition-colors ${
-                         postWithoutAudio ? 'bg-[#E6B36A] border-[#E6B36A]' : 'bg-white/10 border-white/10'
+                         postWithoutAudio ? 'bg-[#E6B36A] border-[#E6B36A]' : 'bg-white border-transparent'
                        }`}
                        onClick={() => {
                          const next = !postWithoutAudio;
@@ -470,7 +470,7 @@ export default function Upload() {
                          <span>Posting…</span>
                          <span>{postProgress}%</span>
                        </div>
-                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                       <div className="h-2 bg-white rounded-full overflow-hidden">
                          <div className="h-full bg-[#E6B36A]" style={{ width: `${postProgress}%` }} />
                        </div>
                      </div>
@@ -545,7 +545,7 @@ export default function Upload() {
 
                   {/* 2. Sound/Music */}
                   <button 
-                    className="absolute top-[2%] left-1/2 -translate-x-1/2 w-40 h-8 rounded-full flex items-center justify-center gap-1 bg-black/50 backdrop-blur-md border border-white/20 z-[150]"
+                    className="absolute top-[2%] left-1/2 -translate-x-1/2 w-40 h-8 rounded-full flex items-center justify-center gap-1 bg-black border border-transparent z-[150]"
                     onClick={() => setShowMusicModal(true)}
                   >
                     <Music size={14} className="text-white" />
@@ -556,7 +556,7 @@ export default function Upload() {
 
                   {/* 3. Flip Camera */}
                   <button 
-                    className="absolute top-[18%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/10 rounded-full"
+                    className="absolute top-[18%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:brightness-125 rounded-full"
                     onClick={() => alert('Flip Camera')}
                   >
                     <RefreshCw size={20} className="text-white" />
@@ -564,7 +564,7 @@ export default function Upload() {
 
                   {/* 4. Speed */}
                   <button 
-                    className="absolute top-[26%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/10 rounded-full"
+                    className="absolute top-[26%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:brightness-125 rounded-full"
                     onClick={() => alert('Speed')}
                   >
                     <span className="text-white font-bold text-xs">1x</span>
@@ -572,7 +572,7 @@ export default function Upload() {
 
                   {/* 5. Beauty */}
                   <button 
-                    className="absolute top-[34%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/10 rounded-full"
+                    className="absolute top-[34%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:brightness-125 rounded-full"
                     onClick={() => alert('Beauty')}
                   >
                     <span className="text-white text-xs">✨</span>
@@ -580,7 +580,7 @@ export default function Upload() {
 
                   {/* 6. Timer */}
                   <button 
-                    className="absolute top-[42%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/10 rounded-full"
+                    className="absolute top-[42%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:brightness-125 rounded-full"
                     onClick={() => alert('Timer')}
                   >
                     <Clock size={20} className="text-white" />
@@ -588,7 +588,7 @@ export default function Upload() {
 
                   {/* 7. Flash */}
                   <button 
-                    className="absolute top-[50%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/10 rounded-full"
+                    className="absolute top-[50%] right-[5%] w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 hover:brightness-125 rounded-full"
                     onClick={() => alert('Flash')}
                   >
                     <Zap size={20} className="text-white" />
@@ -617,7 +617,7 @@ export default function Upload() {
                       )}
 
                       <button 
-                        className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${isRecording ? 'bg-red-600 border-4 border-white' : 'bg-white/20 border-4 border-white hover:bg-red-600/50'}`}
+                        className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${isRecording ? 'bg-red-600 border-4 border-white' : 'bg-white border-4 border-white hover:bg-red-600/50'}`}
                         onClick={toggleRecording}
                       >
                         {isRecording ? (
@@ -632,7 +632,7 @@ export default function Upload() {
 
                   {/* 11. Go Live Hitbox (Right Side - Invisible) */}
                   <button 
-                     className="absolute bottom-[2.5%] right-[30%] w-12 h-8 flex items-center justify-center pointer-events-auto z-[100] opacity-0 hover:bg-white/10 cursor-pointer"
+                     className="absolute bottom-[2.5%] right-[30%] w-12 h-8 flex items-center justify-center pointer-events-auto z-[100] opacity-0 hover:brightness-125 cursor-pointer"
                      onClick={async () => {
                          try {
                            const stream = await navigator.mediaDevices.getUserMedia({
@@ -656,7 +656,7 @@ export default function Upload() {
 
                   {/* 10. Upload (Left Side - Invisible) */}
                   <button 
-                    className="absolute bottom-[7%] left-[4%] w-16 h-16 flex items-center justify-center opacity-0 hover:bg-white/10 rounded-lg cursor-pointer z-[100]"
+                    className="absolute bottom-[7%] left-[4%] w-16 h-16 flex items-center justify-center opacity-0 hover:brightness-125 rounded-lg cursor-pointer z-[100]"
                     onClick={handleFileUpload}
                     title="Upload from Gallery"
                   >
@@ -666,7 +666,7 @@ export default function Upload() {
 
               {/* Music Selection Modal */}
               {showMusicModal && (
-                  <div className="absolute inset-0 z-[200] bg-black/90 flex flex-col pt-10 px-4 animate-in slide-in-from-bottom duration-300">
+                  <div className="absolute inset-0 z-[200] bg-black flex flex-col pt-10 px-4 animate-in slide-in-from-bottom duration-300">
                       <div className="flex items-center justify-between mb-6">
                           <h2 className="text-white text-xl font-bold">Select Sound</h2>
                           <div className="flex items-center gap-2">
@@ -688,7 +688,7 @@ export default function Upload() {
                                 };
                                 setCustomTracks((prev) => [next, ...prev]);
                               }}
-                              className="px-3 py-1.5 rounded-full border border-white/15 text-white/80 text-xs font-semibold hover:bg-white/10"
+                              className="px-3 py-1.5 rounded-full border border-transparent text-white/80 text-xs font-semibold hover:brightness-125"
                             >
                               Add URL
                             </button>
@@ -708,7 +708,7 @@ export default function Upload() {
                               className={`px-3 py-3 rounded-xl border text-left ${
                                 selectedAudioId === 'original' && !postWithoutAudio
                                   ? 'bg-[#E6B36A] border-[#E6B36A] text-black'
-                                  : 'bg-white/5 border-white/10 text-white'
+                                  : 'bg-white border-transparent text-white'
                               }`}
                               onClick={() => {
                                 setSelectedAudioId('original');
@@ -727,7 +727,7 @@ export default function Upload() {
                               className={`px-3 py-3 rounded-xl border text-left ${
                                 postWithoutAudio || selectedAudioId === 'none'
                                   ? 'bg-[#E6B36A] border-[#E6B36A] text-black'
-                                  : 'bg-white/5 border-white/10 text-white'
+                                  : 'bg-white border-transparent text-white'
                               }`}
                               onClick={() => {
                                 setSelectedAudioId('none');
@@ -746,7 +746,7 @@ export default function Upload() {
                           {musicTracks.map((track) => (
                               <div 
                                 key={track.id}
-                                className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer border border-white/5"
+                                className="flex items-center justify-between p-3 rounded-lg bg-white hover:brightness-125 cursor-pointer border border-transparent"
                                 onClick={() => handleSelectMusic(track)}
                               >
                                   <div className="flex items-center gap-3">

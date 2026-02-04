@@ -20,7 +20,7 @@ export function FaceARGift({ giftType, color, onComplete }: FaceARGiftProps) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="px-5 py-4 rounded-2xl border border-white/10 bg-black/60 text-white text-center"
+        className="px-5 py-4 rounded-2xl border border-transparent bg-black text-white text-center"
         style={{ boxShadow: `0 0 40px ${color}55` }}
       >
         <div className="text-xs font-bold tracking-wide text-white/70">Gift</div>
