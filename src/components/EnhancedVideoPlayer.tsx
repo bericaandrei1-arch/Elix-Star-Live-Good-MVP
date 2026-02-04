@@ -425,7 +425,7 @@ export default function EnhancedVideoPlayer({
       </div>
 
       {/* Right Sidebar - Premium Metallic Icon Buttons */}
-      <div className="absolute z-[201] right-3 bottom-0 flex flex-col items-center gap-2 pointer-events-auto">
+      <div className="absolute z-[201] right-3 bottom-32 flex flex-col items-center gap-2 pointer-events-auto">
         
         {/* Profile Avatar with Premium Border */}
         <div className="relative -mt-4 mb-2">
