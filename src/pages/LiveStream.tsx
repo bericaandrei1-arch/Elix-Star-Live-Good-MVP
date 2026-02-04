@@ -1155,7 +1155,7 @@ export default function LiveStream() {
         {isBattleMode && (
           <div
             className={`absolute inset-0 z-[80] flex flex-col ${isBroadcast ? 'pointer-events-none' : 'pb-24'}`}
-            style={{ paddingTop: isBroadcast ? '90px' : '90px', paddingBottom: isBroadcast ? '120px' : undefined }}
+            style={{ paddingTop: isBroadcast ? '90px' : '90px', paddingBottom: isBroadcast ? '230px' : undefined }}
             onClick={!isBroadcast ? handleScreenTap : undefined}
           >
             {battleCountdown != null && (
