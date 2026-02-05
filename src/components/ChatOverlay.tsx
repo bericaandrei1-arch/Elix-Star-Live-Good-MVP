@@ -104,15 +104,7 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
             {!msg.isSystem && (
-              <img
-                src={msg.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(msg.username)}&background=random`}
-                alt=""
-                style={avatarStyle}
-              />
-            )}
-            
-            {!msg.isSystem && (
-              <LevelBadge level={msg.level || 1} size={10} layout="fixed" />
+              <LevelBadge level={msg.level || 1} size={28} layout="fixed" />
             )}
             
             <span style={usernameStyle}>{msg.username}</span>
