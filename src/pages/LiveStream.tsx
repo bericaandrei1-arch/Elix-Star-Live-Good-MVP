@@ -1179,7 +1179,7 @@ export default function LiveStream() {
                   spawnHeartFromClient(e.clientX, e.clientY, '#FF2D55');
                   addLiveLikes(1);
                 }}
-                className={`w-1/2 h-full overflow-hidden relative border-r border-black bg-black pointer-events-auto ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
+                className={`w-1/2 h-full overflow-hidden relative border-r border-transparent bg-black pointer-events-auto ${giftTarget === 'me' ? 'ring-2 ring-[#FF4DA6]' : ''}`}
               >
                 <video
                   ref={videoRef}
@@ -1600,10 +1600,10 @@ export default function LiveStream() {
           variant="overlay"
           className={
             isLiveNormal
-              ? "pb-[calc(84px+env(safe-area-inset-bottom))]"
+              ? "pb-[calc(84px+env(safe-area-inset-bottom))] z-[100]"
               : isBroadcast && isBattleMode
-                ? "pb-[calc(16px+env(safe-area-inset-bottom))]"
-                : undefined
+                ? "pb-[calc(16px+env(safe-area-inset-bottom))] z-[100]"
+                : "z-[100]"
           }
           onLike={() => addLiveLikes(1)}
         />
