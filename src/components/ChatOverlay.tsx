@@ -54,7 +54,9 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
     left: variant === 'overlay' ? 0 : undefined,
     width: '100%',
     height: variant === 'overlay' ? 'calc(26vh + 80px)' : '100%',
-    padding: '16px',
+    paddingLeft: '0px',
+    paddingRight: '16px',
+    paddingTop: '16px',
     paddingBottom: variant === 'overlay' ? '96px' : '16px',
     boxSizing: 'border-box',
   };
