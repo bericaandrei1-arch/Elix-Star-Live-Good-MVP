@@ -103,14 +103,13 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
       <div style={scrollStyle} className="chat-scroll">
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
+            {!msg.isSystem && (
+              <LevelBadge level={msg.level || 1} size={40} layout="fixed" />
+            )}
+            
+            <span style={usernameStyle}>{msg.username}</span>
+            <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
             <span style={textStyle(msg.isGift)}>{msg.text}</span>
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={usernameStyle}>{msg.username}</span>
-              <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
-              {!msg.isSystem && (
-                <LevelBadge level={msg.level || 1} size={100} layout="fixed" />
-              )}
-            </div>
           </div>
         ))}
         <div ref={bottomRef} />
