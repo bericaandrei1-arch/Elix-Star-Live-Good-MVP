@@ -72,7 +72,7 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
   const messageStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '4px',
+    gap: '8px',
     padding: '4px 0',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   };
@@ -90,7 +90,6 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
     color: '#d1d5db',
     fontSize: '14px',
     flexShrink: 0,
-    marginLeft: 'auto',
   };
 
   const textStyle = (isGift?: boolean): React.CSSProperties => ({
@@ -104,13 +103,13 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
       <div style={scrollStyle} className="chat-scroll">
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
-            <span style={textStyle(msg.isGift)}>{msg.text}</span>
-            <span style={usernameStyle}>{msg.username}</span>
-            <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
-            
             {!msg.isSystem && (
               <LevelBadge level={msg.level || 1} size={100} layout="fixed" />
             )}
+            
+            <span style={usernameStyle}>{msg.username}</span>
+            <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
+            <span style={textStyle(msg.isGift)}>{msg.text}</span>
           </div>
         ))}
         <div ref={bottomRef} />
