@@ -1883,7 +1883,7 @@ export default function LiveStream() {
         {showGiftPanel && (
             <>
                 <div 
-                    className="absolute inset-0 bg-black z-[150]"
+                    className="absolute inset-0 bg-black/40 z-[150]"
                     onClick={() => setShowGiftPanel(false)}
                 />
                 <motion.div
