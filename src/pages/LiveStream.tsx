@@ -1154,8 +1154,8 @@ export default function LiveStream() {
         {/* Battle Split Screen Overlay - Shows ONLY when in battle mode */}
         {isBattleMode && (
           <div
-            className={`absolute inset-0 z-[80] flex flex-col ${isBroadcast ? 'pointer-events-none' : 'pb-24'}`}
-            style={{ paddingTop: isBroadcast ? '90px' : '90px', paddingBottom: isBroadcast ? '285px' : undefined }}
+            className={`absolute inset-0 z-[80] flex flex-col bg-black ${isBroadcast ? 'pointer-events-none' : 'pb-24'}`}
+            style={{ paddingTop: isBroadcast ? '90px' : '90px', paddingBottom: isBroadcast ? '305px' : undefined }}
             onClick={!isBroadcast ? handleScreenTap : undefined}
           >
             {battleCountdown != null && (
