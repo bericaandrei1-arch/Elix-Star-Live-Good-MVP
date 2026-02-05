@@ -104,7 +104,7 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
             {!msg.isSystem && (
-              <LevelBadge level={msg.level || 1} size={60} layout="fixed" />
+              <LevelBadge level={msg.level || 1} size={100} layout="fixed" />
             )}
             
             <span style={usernameStyle}>{msg.username}</span>
