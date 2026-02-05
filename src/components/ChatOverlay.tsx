@@ -75,6 +75,8 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
     gap: '8px',
     padding: '4px 0',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    justifyContent: 'flex-end',
+    flexDirection: 'row-reverse',
   };
 
   const avatarStyle: React.CSSProperties = {
@@ -104,7 +106,7 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
             {!msg.isSystem && (
-              <LevelBadge level={msg.level || 1} size={40} layout="fixed" />
+              <LevelBadge level={msg.level || 1} size={80} layout="fixed" />
             )}
             
             <span style={usernameStyle}>{msg.username}</span>
