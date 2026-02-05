@@ -1651,11 +1651,25 @@ export default function LiveStream() {
             </form>
         )}
         
+        {/* Debug: Add Test Coins */}
+        {!isBattleMode && (
+        <button 
+            onClick={() => {
+              setCoinBalance(999999999);
+              alert('💰 Added 999,999,999 test coins!');
+            }}
+            className="w-8 h-8 flex items-center justify-center text-xs text-white bg-yellow-600/20 rounded hover:bg-yellow-600/40 transition"
+            title="Add Test Coins"
+        >
+            💰
+        </button>
+        )}
+
         {/* Debug: Simulate Incoming Gift */}
         {!isBattleMode && (
         <button 
             onClick={simulateIncomingGift}
-            className="w-8 h-8 flex items-center justify-center text-xs text-white"
+            className="w-8 h-8 flex items-center justify-center text-xs text-white bg-purple-600/20 rounded hover:bg-purple-600/40 transition"
             title="Simulate Incoming Gift"
         >
             🧪
@@ -1699,6 +1713,18 @@ export default function LiveStream() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* Dev: Add Test Coins */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCoinBalance(999999999);
+                      alert('💰 Added 999,999,999 test coins!');
+                    }}
+                    className="w-7 h-7 flex items-center justify-center hover:scale-110 active:scale-125 transition-all text-yellow-400"
+                    title="Add Test Coins"
+                  >
+                    💰
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
