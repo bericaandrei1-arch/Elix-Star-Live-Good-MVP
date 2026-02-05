@@ -69,6 +69,8 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
     gap: '8px',
     scrollbarWidth: 'none', // Firefox
     msOverflowStyle: 'none', // IE/Edge
+    paddingLeft: '0px',
+    marginLeft: '0px',
   };
 
   const messageStyle: React.CSSProperties = {
@@ -76,6 +78,8 @@ export function ChatOverlay({ messages, variant = 'panel', className, onLike }: 
     alignItems: 'center',
     gap: '8px',
     padding: '4px 0',
+    paddingLeft: '0px',
+    marginLeft: '0px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     justifyContent: 'flex-start',
   };
