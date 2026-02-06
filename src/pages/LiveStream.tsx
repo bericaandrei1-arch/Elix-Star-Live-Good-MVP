@@ -3507,23 +3507,28 @@ export default function LiveStream() {
       )}
 
       {/* Gift Panel Slide-up */}
-      {showGiftPanel && (
-          <>
-              <div 
-                  className="absolute inset-0 bg-black/40 z-[150]"
-                  onClick={() => setShowGiftPanel(false)}
-              />
-              <div
-                  className="absolute bottom-0 left-0 right-0 z-[160]"
-              >
-                  <GiftPanel 
-                      onSelectGift={handleSendGift} 
-                      userCoins={coinBalance} 
-                      onRechargeSuccess={(newBalance) => setCoinBalance(newBalance)}
-                  />
-              </div>
-          </>
-      )}
+      <AnimatePresence>
+        {showGiftPanel && (
+            <>
+                <div 
+                    className="absolute inset-0 bg-black/40 z-[150]"
+                    onClick={() => setShowGiftPanel(false)}
+                />
+                <motion.div
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    className="absolute bottom-0 left-0 right-0 z-[160]"
+                >
+                    <GiftPanel 
+                        onSelectGift={handleSendGift} 
+                        userCoins={coinBalance} 
+                        onRechargeSuccess={(newBalance) => setCoinBalance(newBalance)}
+                    />
+                </motion.div>
+            </>
+        )}
+      </AnimatePresence>
     </div>
     </div>
   );
