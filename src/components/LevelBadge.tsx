@@ -29,9 +29,9 @@ export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, className = "", s
   const isChat = variant === 'chat' || size === 10;
 
   // Circle and capsule sizing
-  const circleR = isChat ? 8 : size === 2 ? 3 : size === 14 ? 6 : size === 28 ? 12 : size === 70 ? 20 : Math.max(11, Math.round(size * 0.4));
+  const circleR = isChat ? 8 : size === 2 ? 3 : size === 14 ? 6 : size === 20 ? 9 : size === 28 ? 12 : size === 70 ? 20 : Math.max(11, Math.round(size * 0.4));
   const strokeW = isChat ? 1.5 : size === 2 ? 0.5 : circleR >= 20 ? 2.5 : 2;
-  const fontSize = isChat ? 8 : size === 2 ? 3 : size === 14 ? 7 : size === 28 ? 11 : size === 70 ? 14 : Math.max(9, Math.round(circleR * 0.55));
+  const fontSize = isChat ? 8 : size === 2 ? 3 : size === 14 ? 7 : size === 20 ? 9 : size === 28 ? 11 : size === 70 ? 14 : Math.max(9, Math.round(circleR * 0.55));
 
   // Capsule dimensions
   const capsuleH = isChat ? 14 : Math.round(circleR * 1.2);
@@ -97,8 +97,8 @@ export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, className = "", s
   const textY = cy;
 
   // Outer wrapper for layout compatibility
-  const outerWidth = size === 10 ? 60 : size === 2 ? 3 : size === 14 ? 16 : size === 28 ? 168 : size === 70 ? 280 : totalW;
-  const outerHeight = size === 10 ? 28 : size === 2 ? 2 : size === 14 ? 14 : size === 28 ? 42 : size === 70 ? 105 : totalH;
+  const outerWidth = size === 10 ? 60 : size === 2 ? 3 : size === 14 ? 16 : size === 20 ? 56 : size === 28 ? 168 : size === 70 ? 280 : totalW;
+  const outerHeight = size === 10 ? 28 : size === 2 ? 2 : size === 14 ? 14 : size === 20 ? 22 : size === 28 ? 42 : size === 70 ? 105 : totalH;
 
   const uid = `lb-${safeLevel}-${size}-${Math.random().toString(36).slice(2, 6)}`;
 

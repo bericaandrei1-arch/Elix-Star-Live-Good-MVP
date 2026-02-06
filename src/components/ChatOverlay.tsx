@@ -30,15 +30,15 @@ export function ChatOverlay({ messages, variant = 'panel', compact = false, clas
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'flex-end',
     position: variant === 'overlay' ? 'absolute' : 'relative',
     bottom: variant === 'overlay' ? 0 : undefined,
     left: variant === 'overlay' ? 0 : undefined,
     width: '100%',
-    height: variant === 'overlay' ? (compact ? 'calc(16vh + 40px)' : 'calc(26vh + 80px)') : '100%',
+    height: variant === 'overlay' ? (compact ? '30dvh' : '40dvh') : '100%',
     paddingLeft: '0px',
     paddingRight: '16px',
-    paddingTop: '16px',
-    paddingBottom: variant === 'overlay' ? '96px' : '16px',
+    paddingTop: '8px',
     boxSizing: 'border-box',
     background: 'transparent',
   };
@@ -48,7 +48,7 @@ export function ChatOverlay({ messages, variant = 'panel', compact = false, clas
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    gap: '0px',
+    gap: '3px',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     paddingLeft: '0px',
@@ -60,18 +60,20 @@ export function ChatOverlay({ messages, variant = 'panel', compact = false, clas
   const messageStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '1px',
-    padding: '2px 8px',
-    paddingLeft: '0px',
-    marginLeft: '-100px',
-    marginTop: '-50px',
+    gap: '6px',
+    padding: '3px 10px',
+    paddingLeft: '8px',
+    marginLeft: '0px',
+    marginTop: '0px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     justifyContent: 'flex-start',
     width: 'auto',
+    maxWidth: '90%',
     alignSelf: 'flex-start',
     pointerEvents: 'auto',
-    textShadow: '0 0 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,1)',
-    WebkitTextStroke: '0.3px rgba(0,0,0,0.5)',
+    textShadow: '0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.6)',
+    background: 'rgba(0,0,0,0.45)',
+    borderRadius: '8px',
   };
 
   const usernameStyle: React.CSSProperties = {
@@ -79,7 +81,7 @@ export function ChatOverlay({ messages, variant = 'panel', compact = false, clas
     color: '#d1d5db',
     fontSize: '14px',
     flexShrink: 0,
-    marginLeft: '-95px',
+    marginLeft: '0px',
   };
 
   const textStyle = (isGift?: boolean): React.CSSProperties => ({
@@ -101,11 +103,9 @@ export function ChatOverlay({ messages, variant = 'panel', compact = false, clas
         {messages.map((msg) => (
           <div key={msg.id} style={messageStyle}>
             {!msg.isSystem && (
-              <LevelBadge level={msg.level || 1} size={70} layout="fixed" avatar={msg.avatar} />
+              <LevelBadge level={msg.level || 1} size={20} layout="fixed" avatar={msg.avatar} />
             )}
-            
             <span style={usernameStyle}>{msg.username}</span>
-            <span style={{ color: 'rgba(255,255,255,0.5)' }}>:</span>
             <span style={textStyle(msg.isGift)}>{msg.text}</span>
           </div>
         ))}
